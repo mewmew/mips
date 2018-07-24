@@ -4,9 +4,9 @@ package mips
 
 import "strconv"
 
-const _Op_name = "addadduaddiaddiuandandidivdivumultmultunorororisllsllvsrasravsrlsrlvsubsubuxorxorilhillosltsltusltisltiubeqbgtzblezbnejjaljalrjrlblbulhlhulwsbshswmfhimflomthimtlotrap"
+const _Op_name = "addaddiaddiuadduandandibeqbgtzblezbnedivdivujjaljalrjrlblbulhlhilhullolwmfhimflomthimtlomultmultunorororisbshsllsllvsltsltisltiusltusrasravsrlsrlvsubsubuswtrapxorxori"
 
-var _Op_index = [...]uint8{0, 3, 7, 11, 16, 19, 23, 26, 30, 34, 39, 42, 44, 47, 50, 54, 57, 61, 64, 68, 71, 75, 78, 82, 85, 88, 91, 95, 99, 104, 107, 111, 115, 118, 119, 122, 126, 128, 130, 133, 135, 138, 140, 142, 144, 146, 150, 154, 158, 162, 166}
+var _Op_index = [...]uint8{0, 3, 7, 12, 16, 19, 23, 26, 30, 34, 37, 40, 44, 45, 48, 52, 54, 56, 59, 61, 64, 67, 70, 72, 76, 80, 84, 88, 92, 97, 100, 102, 105, 107, 109, 112, 116, 119, 123, 128, 132, 135, 139, 142, 146, 149, 153, 155, 159, 162, 166}
 
 func (i Op) String() string {
 	i -= 1

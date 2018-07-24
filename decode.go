@@ -3,6 +3,7 @@ package mips
 import (
 	"encoding/binary"
 	"fmt"
+	"log"
 
 	"github.com/pkg/errors"
 )
@@ -37,7 +38,10 @@ func Decode(src []byte) (Inst, error) {
 	}
 	op, ok := opFromOpcode[opcode]
 	if !ok {
-		panic(fmt.Errorf("support for opcode bit pattern %06b not yet implemented", opcode))
+		// TODO: re-enable panic.
+		log.Printf("support for opcode bit pattern %06b not yet implemented", opcode)
+		return Inst{}, nil
+		//panic(fmt.Errorf("support for opcode bit pattern %06b not yet implemented", opcode))
 	}
 	switch op {
 	case J, JAL, TRAP:
@@ -95,7 +99,10 @@ func decodeRegInst(bits uint32) (Inst, error) {
 	fmt.Printf("func:   %06b\n", uint32(f))
 	op, ok := opFromFunc[f]
 	if !ok {
-		panic(fmt.Errorf("support for function bit pattern %06b not yet implemented", f))
+		// TODO: re-enable panic.
+		log.Printf("support for function bit pattern %06b not yet implemented", f)
+		return Inst{}, nil
+		//panic(fmt.Errorf("support for function bit pattern %06b not yet implemented", f))
 	}
 	// +-------------+-----------------+-----------+
 	// | Syntax      | Template        | Encoding  |
@@ -139,7 +146,10 @@ func decodeRegInst(bits uint32) (Inst, error) {
 	case MTHI, MTLO:
 		args[0] = s
 	default:
-		panic(fmt.Errorf("support for opcode %v not yet implemented", op))
+		// TODO: re-enable panic.
+		log.Printf("support for opcode %v not yet implemented", op)
+		return Inst{}, nil
+		//panic(fmt.Errorf("support for opcode %v not yet implemented", op))
 	}
 	return Inst{Op: op, Enc: bits, Args: args}, nil
 }
@@ -219,7 +229,10 @@ func decodeImmInst(op Op, bits uint32) (Inst, error) {
 		}
 		args[1] = m
 	default:
-		panic(fmt.Errorf("support for opcode %v not yet implemented", op))
+		// TODO: re-enable panic.
+		log.Printf("support for opcode %v not yet implemented", op)
+		return Inst{}, nil
+		//panic(fmt.Errorf("support for opcode %v not yet implemented", op))
 	}
 	return Inst{Op: op, Enc: bits, Args: args}, nil
 }
@@ -237,7 +250,7 @@ func decodeImmInst(op Op, bits uint32) (Inst, error) {
 // decodeJumpInst decodes an instruction with jump encoding.
 func decodeJumpInst(op Op, bits uint32) (Inst, error) {
 	i := Imm(bits & imm26Mask)
-	fmt.Printf("imm26:  %016b\n", uint32(i))
+	fmt.Printf("imm26:  %026b\n", uint32(i))
 	// +-------------+-----------------+-----------+
 	// | Syntax      | Template        | Encoding  |
 	// +=============+=================+===========+
@@ -253,7 +266,10 @@ func decodeJumpInst(op Op, bits uint32) (Inst, error) {
 	case TRAP:
 		args[0] = i
 	default:
-		panic(fmt.Errorf("support for opcode %v not yet implemented", op))
+		// TODO: re-enable panic.
+		log.Printf("support for opcode %v not yet implemented", op)
+		return Inst{}, nil
+		//panic(fmt.Errorf("support for opcode %v not yet implemented", op))
 	}
 	return Inst{Op: op, Enc: bits, Args: args}, nil
 }
