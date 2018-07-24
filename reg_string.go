@@ -5,27 +5,22 @@ package mips
 import "strconv"
 
 const (
-	_Reg_name_0 = "$zero"
-	_Reg_name_1 = "$v0$v1"
-	_Reg_name_2 = "$t2"
-	_Reg_name_3 = "$ra"
+	_Reg_name_0 = "$zero$at$v0$v1$a0$a1$a2$a3$t0$t1$t2$t3$t4$t5$t6$t7$s0$s1$s2$s3$s4$s5$s6$s7$t8$t9$k0"
+	_Reg_name_1 = "$gp$sp$fp$ra"
 )
 
 var (
-	_Reg_index_1 = [...]uint8{0, 3, 6}
+	_Reg_index_0 = [...]uint8{0, 5, 8, 11, 14, 17, 20, 23, 26, 29, 32, 35, 38, 41, 44, 47, 50, 53, 56, 59, 62, 65, 68, 71, 74, 77, 80, 83}
+	_Reg_index_1 = [...]uint8{0, 3, 6, 9, 12}
 )
 
 func (i Reg) String() string {
 	switch {
-	case i == 0:
-		return _Reg_name_0
-	case 2 <= i && i <= 3:
-		i -= 2
+	case 0 <= i && i <= 26:
+		return _Reg_name_0[_Reg_index_0[i]:_Reg_index_0[i+1]]
+	case 28 <= i && i <= 31:
+		i -= 28
 		return _Reg_name_1[_Reg_index_1[i]:_Reg_index_1[i+1]]
-	case i == 10:
-		return _Reg_name_2
-	case i == 31:
-		return _Reg_name_3
 	default:
 		return "Reg(" + strconv.FormatInt(int64(i), 10) + ")"
 	}

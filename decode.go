@@ -129,8 +129,8 @@ func decodeRegInst(bits uint32) (Inst, error) {
 	// Shift
 	case SLL, SRL, SRA:
 		args[0] = d
-		args[0] = t
-		args[0] = a
+		args[1] = t
+		args[2] = a
 	// ShiftV
 	case SLLV, SRLV, SRAV:
 		args[0] = d

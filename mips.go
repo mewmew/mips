@@ -18,6 +18,10 @@ type Inst struct {
 
 // String returns the string representation of the instruction.
 func (i Inst) String() string {
+	if i.Enc == 0 {
+		// sll $zero, $zero, 0
+		return "nop"
+	}
 	var args []string
 	for _, arg := range i.Args {
 		if arg == nil {
@@ -111,20 +115,39 @@ type Reg uint8
 
 // Registers.
 const (
-	// TODO: Add correct MIPS registers.
-	Zero Reg = 0 // $zero
-
-	// 00010
-	V0 Reg = 2 // $v0
-
-	// 00011
-	V1 Reg = 3 // $v1
-
-	// 01010
-	T2 Reg = 10 // $t2
-
-	// 11111
-	RA Reg = 31 // $ra
+	// TODO: Add remaining MIPS registers.
+	ZERO Reg = 0  // $zero
+	AT   Reg = 1  // $at
+	V0   Reg = 2  // $v0
+	V1   Reg = 3  // $v1
+	A0   Reg = 4  // $a0
+	A1   Reg = 5  // $a1
+	A2   Reg = 6  // $a2
+	A3   Reg = 7  // $a3
+	T0   Reg = 8  // $t0
+	T1   Reg = 9  // $t1
+	T2   Reg = 10 // $t2
+	T3   Reg = 11 // $t3
+	T4   Reg = 12 // $t4
+	T5   Reg = 13 // $t5
+	T6   Reg = 14 // $t6
+	T7   Reg = 15 // $t7
+	S0   Reg = 16 // $s0
+	S1   Reg = 17 // $s1
+	S2   Reg = 18 // $s2
+	S3   Reg = 19 // $s3
+	S4   Reg = 20 // $s4
+	S5   Reg = 21 // $s5
+	S6   Reg = 22 // $s6
+	S7   Reg = 23 // $s7
+	T8   Reg = 24 // $t8
+	T9   Reg = 25 // $t9
+	K0   Reg = 26 // $k0
+	K1   Reg = 26 // $k1
+	GP   Reg = 28 // $gp
+	SP   Reg = 29 // $sp
+	FP   Reg = 30 // $fp
+	RA   Reg = 31 // $ra
 )
 
 // --- [ PC relative memory address ] ------------------------------------------
