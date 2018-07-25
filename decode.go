@@ -214,18 +214,18 @@ func decodeImmInst(op Op, bits uint32) (Inst, error) {
 	case BEQ, BNE:
 		args[0] = s
 		args[1] = t
-		args[2] = i
+		args[2] = PCRel(int16(i) * 4)
 	// BranchZ
 	case BLEZ, BGTZ:
 		args[0] = t
 		args[1] = s
-		args[2] = i
+		args[2] = PCRel(int16(i) * 4)
 	// LoadStore
 	case LB, LH, LW, LBU, LHU, SB, SH, SW:
 		args[0] = t
 		m := Mem{
 			Base:   s,
-			Offset: int32(i), // TODO: Check convertion.
+			Offset: int32(int16(i)),
 		}
 		args[1] = m
 	default:

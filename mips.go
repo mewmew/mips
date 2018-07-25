@@ -115,7 +115,6 @@ type Reg uint8
 
 // Registers.
 const (
-	// TODO: Add remaining MIPS registers.
 	ZERO Reg = 0  // $zero
 	AT   Reg = 1  // $at
 	V0   Reg = 2  // $v0
@@ -158,7 +157,7 @@ type PCRel int32
 
 // String returns the string representation of the PC relative memory address.
 func (r PCRel) String() string {
-	return fmt.Sprintf("0x%X", uint32(r))
+	return fmt.Sprintf("%d", r)
 }
 
 // --- [ Memory reference ] ----------------------------------------------------
