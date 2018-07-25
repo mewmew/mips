@@ -1,10 +1,12 @@
-* fix opcode of li instruction (001001 in r5900l?)
-* missing CTC2 instruction (register encoding, add function mapping)
-* missing LA instruction (takes 8 bytes; e.g. 80010020 `la      $t0, unk_800B0D00`)
-* fix opcode of sltiu
-* fix function of sltu
-* check if llo and lhi instructions are part of r5900l
-* check if sub and subu instructions are part of r5900l (could be pseudo-instructions for syntactic suger)
-* check if mthi and mtlo instructions are part of r5900l
-* check if trap instruction is part of r5900l
-* figure out how target is encoded in j and jal instructions
+- [ ] fix opcode of li instruction (001001 in r5900l?)
+- [x] missing CTC2 instruction (register encoding, add function mapping)
+- [ ] missing LA instruction (takes 8 bytes; e.g. 80010020 `la      $t0, unk_800B0D00`)
+- [x] fix opcode of sltiu
+- [x] fix function of sltu
+- [x] check if llo and lhi instructions are part of r5900l
+- [x] check if sub and subu instructions are part of r5900l (could be pseudo-instructions for syntactic suger)
+- [x] check if mthi and mtlo instructions are part of r5900l
+- [x] check if trap instruction is part of r5900l
+- [x] figure out how target is encoded in j and jal instructions
+- [x] remove TRAP
+- [x] LLO, LHI

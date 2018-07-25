@@ -1,4 +1,4 @@
-// Package mips implements decoding of 32-bit MIPS machine code.
+// Package mips implements decoding of 32-bit MIPS I machine code.
 package mips
 
 import (
@@ -39,7 +39,9 @@ type Op uint8
 
 // Opcodes.
 const (
-	_ Op = iota
+	invalid Op = iota
+	special    // register encoded instruction (function)
+	bcond      // condition branch instruction (condition)
 
 	ADD   // add
 	ADDI  // addi
@@ -60,9 +62,7 @@ const (
 	LB    // lb
 	LBU   // lbu
 	LH    // lh
-	LHI   // lhi
 	LHU   // lhu
-	LLO   // llo
 	LW    // lw
 	MFHI  // mfhi
 	MFLO  // mflo
@@ -88,9 +88,73 @@ const (
 	SUB   // sub
 	SUBU  // subu
 	SW    // sw
-	TRAP  // trap
 	XOR   // xor
 	XORI  // xori
+
+	// TODO: Figure out a good placement. Also, remove unused instructions above.
+	// Furthermore, validate the instruction type and that decoding is done
+	// correctly; e.g. I-type, R-type, J-type.
+	BGEZ    // bgez
+	BGEZAL  // bgezal
+	BLTZAL  // bltzal
+	BLTZ    // bltz
+	LUI     // lui
+	COP0    // cop0
+	COP1    // cop1
+	COP2    // cop2
+	COP3    // cop3
+	LWL     // lwl
+	LWR     // lwr
+	SWL     // swl
+	SWR     // swr
+	LWC0    // lwc0
+	LWC1    // lwc1
+	LWC2    // lwc2
+	LWC3    // lwc3
+	SWC0    // swc0
+	SWC1    // swc1
+	SWC2    // swc2
+	SWC3    // swc3
+	SYSCALL // syscall
+	BREAK   // break
+
+	// Co-Processor Operations
+	// order matters: each instruction has a CO0 through CO3 variant.
+	MFC0 // mfc0
+	MFC1 // mfc1
+	MFC2 // mfc2
+	MFC3 // mfc3
+	MTC0 // mtc0
+	MTC1 // mtc1
+	MTC2 // mtc2
+	MTC3 // mtc3
+	CFC0 // cfc0
+	CFC1 // cfc1
+	CFC2 // cfc2
+	CFC3 // cfc3
+	CTC0 // ctc0
+	CTC1 // ctc1
+	CTC2 // ctc2
+	CTC3 // ctc3
+	BCC0 // bcc0
+	BCC1 // bcc1
+	BCC2 // bcc2
+	BCC3 // bcc3
+	BC0F // bc0f
+	BC1F // bc1f
+	BC2F // bc2f
+	BC3F // bc3f
+	BC0T // bc0t
+	BC1T // bc1t
+	BC2T // bc2t
+	BC3T // bc3t
+
+	// CP0 Operations.
+	TLBR  // tlbr
+	TLBWI // tlbwi
+	TLBWR // tlbwr
+	TLBP  // tlbp
+	RFE   // rfe
 )
 
 // An Args holds the instruction arguments. If an instruction has fewer than 3
@@ -115,6 +179,8 @@ type Reg uint8
 
 // Registers.
 const (
+	// CPU General Registers.
+
 	ZERO Reg = 0  // $zero
 	AT   Reg = 1  // $at
 	V0   Reg = 2  // $v0
@@ -147,6 +213,49 @@ const (
 	SP   Reg = 29 // $sp
 	FP   Reg = 30 // $fp
 	RA   Reg = 31 // $ra
+
+	// TODO: Figure out what register number and syntax name to use for hi, lo
+	// and pc registers.
+	HI Reg = RA + 1 + iota // $hi
+	LO                     // $lo
+	PC                     // $pc
+
+	// CP0 Special Registers
+	// TODO: Figure out a better name for Co-processor (CP0) registers.
+
+	// order matters; translating between CPU registers and COz registers.
+	C0  // $0
+	C1  // $1
+	C2  // $2
+	C3  // $3
+	C4  // $4
+	C5  // $5
+	C6  // $6
+	C7  // $7
+	C8  // $8
+	C9  // $9
+	C10 // $10
+	C11 // $11
+	C12 // $12
+	C13 // $13
+	C14 // $14
+	C15 // $15
+	C16 // $16
+	C17 // $17
+	C18 // $18
+	C19 // $19
+	C20 // $20
+	C21 // $21
+	C22 // $22
+	C23 // $23
+	C24 // $24
+	C25 // $25
+	C26 // $26
+	C27 // $27
+	C28 // $28
+	C29 // $29
+	C30 // $30
+	C31 // $31
 )
 
 // --- [ PC relative memory address ] ------------------------------------------

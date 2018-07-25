@@ -4,14 +4,13 @@ package mips
 
 import "strconv"
 
-const _Op_name = "addaddiaddiuadduandandibeqbgtzblezbnedivdivujjaljalrjrlblbulhlhilhullolwmfhimflomthimtlomultmultunorororisbshsllsllvsltsltisltiusltusrasravsrlsrlvsubsubuswtrapxorxori"
+const _Op_name = "invalidregister encoded instruction (function)condition branch instruction (condition)addaddiaddiuadduandandibeqbgtzblezbnedivdivujjaljalrjrlblbulhlhulwmfhimflomthimtlomultmultunorororisbshsllsllvsltsltisltiusltusrasravsrlsrlvsubsubuswxorxoribgezbgezalbltzalbltzluicop0cop1cop2cop3lwllwrswlswrlwc0lwc1lwc2lwc3swc0swc1swc2swc3syscallbreakmfc0mfc1mfc2mfc3mtc0mtc1mtc2mtc3cfc0cfc1cfc2cfc3ctc0ctc1ctc2ctc3bcc0bcc1bcc2bcc3bc0fbc1fbc2fbc3fbc0tbc1tbc2tbc3ttlbrtlbwitlbwrtlbprfe"
 
-var _Op_index = [...]uint8{0, 3, 7, 12, 16, 19, 23, 26, 30, 34, 37, 40, 44, 45, 48, 52, 54, 56, 59, 61, 64, 67, 70, 72, 76, 80, 84, 88, 92, 97, 100, 102, 105, 107, 109, 112, 116, 119, 123, 128, 132, 135, 139, 142, 146, 149, 153, 155, 159, 162, 166}
+var _Op_index = [...]uint16{0, 7, 46, 86, 89, 93, 98, 102, 105, 109, 112, 116, 120, 123, 126, 130, 131, 134, 138, 140, 142, 145, 147, 150, 152, 156, 160, 164, 168, 172, 177, 180, 182, 185, 187, 189, 192, 196, 199, 203, 208, 212, 215, 219, 222, 226, 229, 233, 235, 238, 242, 246, 252, 258, 262, 265, 269, 273, 277, 281, 284, 287, 290, 293, 297, 301, 305, 309, 313, 317, 321, 325, 332, 337, 341, 345, 349, 353, 357, 361, 365, 369, 373, 377, 381, 385, 389, 393, 397, 401, 405, 409, 413, 417, 421, 425, 429, 433, 437, 441, 445, 449, 453, 458, 463, 467, 470}
 
 func (i Op) String() string {
-	i -= 1
 	if i >= Op(len(_Op_index)-1) {
-		return "Op(" + strconv.FormatInt(int64(i+1), 10) + ")"
+		return "Op(" + strconv.FormatInt(int64(i), 10) + ")"
 	}
 	return _Op_name[_Op_index[i]:_Op_index[i+1]]
 }
