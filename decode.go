@@ -387,7 +387,14 @@ func decodeCoInst(op Op, bits uint32) (Inst, error) {
 			}
 			op = fixCoID(op, o)
 		} else if o := opFromCopT[t]; o != invalid {
+			// TODO: Implement.
+			log.Printf("support for co-processor opcode t %v not yet implemented", o)
+			op = fixCoID(op, o)
+			return Inst{}, nil
 		} else if o := opFromCop0[f5]; o != invalid {
+			// TODO: Implement.
+			log.Printf("support for co-processor opcode f5 %v not yet implemented", o)
+			op = fixCoID(op, o)
 		} else {
 			// TODO: Validate argument.
 			const imm24Mask = 0x00FFFFFF // 0b00000000111111111111111111111111
@@ -426,6 +433,8 @@ func fixCoID(orig, op Op) Op {
 	switch op {
 	case MFC0, MTC0, CFC0, CTC0, BCC0, BC0F, BC0T:
 		return op + Op(n)
+	case TLBR, TLBWI, TLBWR, TLBP, RFE:
+		return op // always on CO0
 	}
 	return orig
 }
