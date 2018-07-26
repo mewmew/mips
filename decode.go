@@ -140,7 +140,6 @@ func Decode(src []byte) (Inst, error) {
 	}
 	bits := binary.LittleEndian.Uint32(src)
 	opcode := bits & opcodeMask >> 26
-	//fmt.Printf("opcode: %06b\n", opcode)
 	op := opFromOpcode[opcode]
 	if op == invalid {
 		// TODO: re-enable panic.
@@ -289,6 +288,18 @@ func decodeImmInst(op Op, bits uint32) (Inst, error) {
 		args[1] = PCRel(int16(i.Imm) * 4)
 	// LoadStore
 	case LB, LBU, LH, LHU, LW, LWL, LWR, SB, SH, SW, SWL, SWR:
+		args[0] = t
+		m := Mem{
+			Base:   s,
+			Offset: int32(int16(i.Imm)),
+		}
+		args[1] = m
+	// Coprocessor Instructions
+	case LWC0, LWC1, LWC2, LWC3, SWC0, SWC1, SWC2, SWC3:
+		// Syntax.
+		//
+		//    LWCz     rt, offset(base)
+		//    SWCz     rt, offset(base)
 		args[0] = t
 		m := Mem{
 			Base:   s,
