@@ -29,7 +29,10 @@ func (i Inst) String() string {
 		}
 		args = append(args, arg.String())
 	}
-	return fmt.Sprintf("%s %s", i.Op, strings.Join(args, ", "))
+	if len(args) > 0 {
+		return fmt.Sprintf("%-*s%s", 8, i.Op, strings.Join(args, ", "))
+	}
+	return i.Op.String()
 }
 
 //go:generate stringer -linecomment -type Op

@@ -140,7 +140,7 @@ func Decode(src []byte) (Inst, error) {
 	}
 	bits := binary.LittleEndian.Uint32(src)
 	opcode := bits & opcodeMask >> 26
-	fmt.Printf("opcode: %06b\n", opcode)
+	//fmt.Printf("opcode: %06b\n", opcode)
 	op := opFromOpcode[opcode]
 	if op == invalid {
 		// TODO: re-enable panic.
@@ -179,11 +179,11 @@ func decodeRegInst(bits uint32) (Inst, error) {
 	d := Reg(bits & dRegMask >> 11)
 	a := Imm(bits & aImmMask >> 6)
 	f := bits & funcMask
-	fmt.Printf("s reg:  %05b\n", uint32(s))
-	fmt.Printf("t reg:  %05b\n", uint32(t))
-	fmt.Printf("d reg:  %05b\n", uint32(d))
-	fmt.Printf("a imm:  %05b\n", uint32(a))
-	fmt.Printf("func:   %06b\n", uint32(f))
+	//fmt.Printf("s reg:  %05b\n", uint32(s))
+	//fmt.Printf("t reg:  %05b\n", uint32(t))
+	//fmt.Printf("d reg:  %05b\n", uint32(d))
+	//fmt.Printf("a imm:  %05b\n", uint32(a))
+	//fmt.Printf("func:   %06b\n", uint32(f))
 	op := opFromFunc[f]
 	if op == invalid {
 		// TODO: re-enable panic.
@@ -264,9 +264,9 @@ func decodeImmInst(op Op, bits uint32) (Inst, error) {
 	s := Reg(bits & sRegMask >> 21)
 	t := Reg(bits & tRegMask >> 16)
 	i := Imm(bits & imm16Mask)
-	fmt.Printf("s reg:  %05b\n", uint32(s))
-	fmt.Printf("t reg:  %05b\n", uint32(t))
-	fmt.Printf("imm16:  %016b\n", uint32(i))
+	//fmt.Printf("s reg:  %05b\n", uint32(s))
+	//fmt.Printf("t reg:  %05b\n", uint32(t))
+	//fmt.Printf("imm16:  %016b\n", uint32(i))
 	var args Args
 	switch op {
 	// ArithLogI
@@ -309,7 +309,7 @@ func decodeImmInst(op Op, bits uint32) (Inst, error) {
 // decodeJumpInst decodes an instruction with jump encoding.
 func decodeJumpInst(op Op, bits uint32) (Inst, error) {
 	i := Imm(bits & imm26Mask)
-	fmt.Printf("imm26:  %026b\n", uint32(i))
+	//fmt.Printf("imm26:  %026b\n", uint32(i))
 	// +-------------+-----------------+-----------+
 	// | Syntax      | Template        | Encoding  |
 	// +=============+=================+===========+
@@ -336,8 +336,7 @@ func decodeJumpInst(op Op, bits uint32) (Inst, error) {
 
 // decodeCoInst decodes an instruction with co-processor-dependent encoding.
 func decodeCoInst(op Op, bits uint32) (Inst, error) {
-	i := Imm(bits & imm26Mask)
-	fmt.Printf("data26:  %026b\n", uint32(i))
+	//fmt.Printf("data26:  %026b\n", uint32(i))
 	// +-------------+-----------------+-----------+
 	// | Syntax      | Template        | Encoding  |
 	// +=============+=================+===========+
@@ -350,13 +349,13 @@ func decodeCoInst(op Op, bits uint32) (Inst, error) {
 		s := Reg(bits & sRegMask >> 21)
 		t := Reg(bits & tRegMask >> 16)
 		d := Reg(bits & dRegMask >> 11)
-		a := Imm(bits & aImmMask >> 6)
+		//a := Imm(bits & aImmMask >> 6)
 		f := bits & funcMask
-		fmt.Printf("s reg:  %05b\n", uint32(s))
-		fmt.Printf("t reg:  %05b\n", uint32(t))
-		fmt.Printf("d reg:  %05b\n", uint32(d))
-		fmt.Printf("a imm:  %05b\n", uint32(a))
-		fmt.Printf("func:   %06b\n", uint32(f))
+		//fmt.Printf("s reg:  %05b\n", uint32(s))
+		//fmt.Printf("t reg:  %05b\n", uint32(t))
+		//fmt.Printf("d reg:  %05b\n", uint32(d))
+		//fmt.Printf("a imm:  %05b\n", uint32(a))
+		//fmt.Printf("func:   %06b\n", uint32(f))
 		if o := opFromCopS[s]; o != invalid {
 			// Syntax
 			//
@@ -385,6 +384,8 @@ func decodeCoInst(op Op, bits uint32) (Inst, error) {
 				//panic(fmt.Errorf("support for co-processor opcode %v not yet implemented", o))
 			}
 			op = fixCoID(op, o)
+		} else if o := opFromCopT[t]; o != invalid {
+		} else if o := opFromCopF[f]; o != invalid {
 		}
 
 		//args[0] = i // TODO: Figure out which COP instructions that should have

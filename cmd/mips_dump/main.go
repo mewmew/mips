@@ -27,13 +27,12 @@ func main() {
 func parse(src []byte) error {
 	for i := 0; i < len(src); i += 4 {
 		addr := 0x80010000 + uint32(i)
-		fmt.Printf("addr: %08X\n", addr)
+		//fmt.Printf("addr: %08X\n", addr)
 		inst, err := mips.Decode(src[i:])
 		if err != nil {
 			return errors.WithStack(err)
 		}
-		fmt.Println("inst:", inst)
-		fmt.Println()
+		fmt.Printf("ROM:%08X                 %s\n", addr, inst)
 	}
 	return nil
 }
