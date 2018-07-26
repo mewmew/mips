@@ -283,17 +283,27 @@ type Mem struct {
 
 // String returns the string representation of the memory reference.
 func (m Mem) String() string {
-	return fmt.Sprintf("%d(%s)", m.Offset, m.Base)
+	if m.Offset < 10 {
+		return fmt.Sprintf("%d(%s)", m.Offset, m.Base)
+	}
+	return fmt.Sprintf("0x%X(%s)", m.Offset, m.Base)
 }
 
 // --- [ Integer constant ] ----------------------------------------------------
 
 // An Imm is an integer constant.
-type Imm uint32
+type Imm struct {
+	Imm     uint32
+	Decimal bool
+}
 
 // String returns the string representation of the integer constant.
 func (i Imm) String() string {
-	return fmt.Sprintf("%d", uint32(i))
+	// TODO: Change back from IDA format.
+	if i.Decimal {
+		return fmt.Sprintf("%d", uint32(i.Imm))
+	}
+	return fmt.Sprintf("0x%X", uint32(i.Imm))
 }
 
 // isArg ensures that only arguments can be assigned to the Arg interface.

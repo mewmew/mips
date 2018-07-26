@@ -177,7 +177,7 @@ func decodeRegInst(bits uint32) (Inst, error) {
 	s := Reg(bits & sRegMask >> 21)
 	t := Reg(bits & tRegMask >> 16)
 	d := Reg(bits & dRegMask >> 11)
-	a := Imm(bits & aImmMask >> 6)
+	a := Imm{Imm: bits & aImmMask >> 6, Decimal: true}
 	f := bits & funcMask
 	//fmt.Printf("s reg:  %05b\n", uint32(s))
 	//fmt.Printf("t reg:  %05b\n", uint32(t))
@@ -263,7 +263,7 @@ func decodeImmInst(op Op, bits uint32) (Inst, error) {
 	// +-------------+-----------------+-----------+
 	s := Reg(bits & sRegMask >> 21)
 	t := Reg(bits & tRegMask >> 16)
-	i := Imm(bits & imm16Mask)
+	i := Imm{Imm: bits & imm16Mask}
 	//fmt.Printf("s reg:  %05b\n", uint32(s))
 	//fmt.Printf("t reg:  %05b\n", uint32(t))
 	//fmt.Printf("imm16:  %016b\n", uint32(i))
@@ -282,17 +282,17 @@ func decodeImmInst(op Op, bits uint32) (Inst, error) {
 	case BEQ, BNE:
 		args[0] = s
 		args[1] = t
-		args[2] = PCRel(int16(i) * 4)
+		args[2] = PCRel(int16(i.Imm) * 4)
 	// BranchZ
 	case BLEZ, BGTZ, BGEZ, BGEZAL, BLTZ:
 		args[0] = s
-		args[1] = PCRel(int16(i) * 4)
+		args[1] = PCRel(int16(i.Imm) * 4)
 	// LoadStore
 	case LB, LBU, LH, LHU, LW, LWL, LWR, SB, SH, SW, SWL, SWR:
 		args[0] = t
 		m := Mem{
 			Base:   s,
-			Offset: int32(int16(i)),
+			Offset: int32(int16(i.Imm)),
 		}
 		args[1] = m
 	default:
@@ -308,7 +308,7 @@ func decodeImmInst(op Op, bits uint32) (Inst, error) {
 
 // decodeJumpInst decodes an instruction with jump encoding.
 func decodeJumpInst(op Op, bits uint32) (Inst, error) {
-	i := Imm(bits & imm26Mask)
+	i := Imm{Imm: bits & imm26Mask}
 	//fmt.Printf("imm26:  %026b\n", uint32(i))
 	// +-------------+-----------------+-----------+
 	// | Syntax      | Template        | Encoding  |
@@ -319,7 +319,8 @@ func decodeJumpInst(op Op, bits uint32) (Inst, error) {
 	switch op {
 	// Jump
 	case J, JAL:
-		args[0] = i << 2
+		i.Imm <<= 2
+		args[0] = i
 	default:
 		// TODO: re-enable panic.
 		log.Printf("support for opcode %v not yet implemented", op)
@@ -349,13 +350,14 @@ func decodeCoInst(op Op, bits uint32) (Inst, error) {
 		s := Reg(bits & sRegMask >> 21)
 		t := Reg(bits & tRegMask >> 16)
 		d := Reg(bits & dRegMask >> 11)
-		//a := Imm(bits & aImmMask >> 6)
-		f := bits & funcMask
+		//a := Imm{Imm: bits & aImmMask >> 6}
+		const f5Mask = 0x0000001F // 0b00000000000000000000000000011111
+		f5 := bits & f5Mask
 		//fmt.Printf("s reg:  %05b\n", uint32(s))
 		//fmt.Printf("t reg:  %05b\n", uint32(t))
 		//fmt.Printf("d reg:  %05b\n", uint32(d))
 		//fmt.Printf("a imm:  %05b\n", uint32(a))
-		//fmt.Printf("func:   %06b\n", uint32(f))
+		//fmt.Printf("f5:     %05b\n", uint32(f5))
 		if o := opFromCopS[s]; o != invalid {
 			// Syntax
 			//
@@ -385,7 +387,12 @@ func decodeCoInst(op Op, bits uint32) (Inst, error) {
 			}
 			op = fixCoID(op, o)
 		} else if o := opFromCopT[t]; o != invalid {
-		} else if o := opFromCopF[f]; o != invalid {
+		} else if o := opFromCop0[f5]; o != invalid {
+		} else {
+			// TODO: Validate argument.
+			const imm24Mask = 0x00FFFFFF // 0b00000000111111111111111111111111
+			i := Imm{Imm: bits & imm24Mask}
+			args[0] = i
 		}
 
 		//args[0] = i // TODO: Figure out which COP instructions that should have
@@ -674,8 +681,8 @@ var opFromCopT = [...]Op{
 	0x1F: invalid, // 0b11111
 }
 
-// opFromCopF maps from co-processor bit pattern (bits[0:5]) to MIPS opcode.
-var opFromCopF = [...]Op{
+// opFromCop0 maps from co-processor bit pattern (bits[0:4]) to MIPS opcode.
+var opFromCop0 = [...]Op{
 	0x00: invalid, // 0b00000
 	0x01: TLBR,    // 0b00001
 	0x02: TLBWI,   // 0b00010
