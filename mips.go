@@ -305,40 +305,39 @@ const (
 	F31 // $f31
 
 	// CO2 Registers.
-	// TODO: Add CO2 registers.
 
-	C0  // $0
-	C1  // $1
-	C2  // $2
-	C3  // $3
-	C4  // $4
-	C5  // $5
-	C6  // $6
-	C7  // $7
-	C8  // $8
-	C9  // $9
-	C10 // $10
-	C11 // $11
-	C12 // $12
-	C13 // $13
-	C14 // $14
-	C15 // $15
-	C16 // $16
-	C17 // $17
-	C18 // $18
-	C19 // $19
-	C20 // $20
-	C21 // $21
-	C22 // $22
-	C23 // $23
-	C24 // $24
-	C25 // $25
-	C26 // $26
-	C27 // $27
-	C28 // $28
-	C29 // $29
-	C30 // $30
-	C31 // $31
+	CO2Reg0  // $0
+	CO2Reg1  // $1
+	CO2Reg2  // $2
+	CO2Reg3  // $3
+	CO2Reg4  // $4
+	CO2Reg5  // $5
+	CO2Reg6  // $6
+	CO2Reg7  // $7
+	CO2Reg8  // $8
+	CO2Reg9  // $9
+	CO2Reg10 // $10
+	CO2Reg11 // $11
+	CO2Reg12 // $12
+	CO2Reg13 // $13
+	CO2Reg14 // $14
+	CO2Reg15 // $15
+	CO2Reg16 // $16
+	CO2Reg17 // $17
+	CO2Reg18 // $18
+	CO2Reg19 // $19
+	CO2Reg20 // $20
+	CO2Reg21 // $21
+	CO2Reg22 // $22
+	CO2Reg23 // $23
+	CO2Reg24 // $24
+	CO2Reg25 // $25
+	CO2Reg26 // $26
+	CO2Reg27 // $27
+	CO2Reg28 // $28
+	CO2Reg29 // $29
+	CO2Reg30 // $30
+	CO2Reg31 // $31
 
 	// CO3 Registers.
 	// TODO: Add CO3 registers.
