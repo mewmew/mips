@@ -30,6 +30,12 @@ func (i Inst) String() string {
 		args = append(args, arg.String())
 	}
 	if len(args) > 0 {
+		// TODO: remove IDA format.
+		if len(args) >= 2 {
+			if args[0] == args[1] {
+				args = args[1:] // skip first argument if src and dest are identical.
+			}
+		}
 		return fmt.Sprintf("%-*s%s", 8, i.Op, strings.Join(args, ", "))
 	}
 	return i.Op.String()
@@ -44,7 +50,8 @@ type Op uint8
 const (
 	invalid Op = iota
 	special    // register encoded instruction (function)
-	bcond      // condition branch instruction (condition)
+	// TODO: consider renaming bcond to regimm.
+	bcond // condition branch instruction (condition)
 
 	ADD   // add
 	ADDI  // addi
@@ -182,51 +189,124 @@ type Reg uint8
 
 // Registers.
 const (
-	// CPU General Registers.
+	// CPU general-purpose registers.
+	ZERO Reg = iota // $zero
+	AT              // $at
+	V0              // $v0
+	V1              // $v1
+	A0              // $a0
+	A1              // $a1
+	A2              // $a2
+	A3              // $a3
+	T0              // $t0
+	T1              // $t1
+	T2              // $t2
+	T3              // $t3
+	T4              // $t4
+	T5              // $t5
+	T6              // $t6
+	T7              // $t7
+	S0              // $s0
+	S1              // $s1
+	S2              // $s2
+	S3              // $s3
+	S4              // $s4
+	S5              // $s5
+	S6              // $s6
+	S7              // $s7
+	T8              // $t8
+	T9              // $t9
+	K0              // $k0
+	K1              // $k1
+	GP              // $gp
+	SP              // $sp
+	FP              // $fp
+	RA              // $ra
 
-	ZERO Reg = 0  // $zero
-	AT   Reg = 1  // $at
-	V0   Reg = 2  // $v0
-	V1   Reg = 3  // $v1
-	A0   Reg = 4  // $a0
-	A1   Reg = 5  // $a1
-	A2   Reg = 6  // $a2
-	A3   Reg = 7  // $a3
-	T0   Reg = 8  // $t0
-	T1   Reg = 9  // $t1
-	T2   Reg = 10 // $t2
-	T3   Reg = 11 // $t3
-	T4   Reg = 12 // $t4
-	T5   Reg = 13 // $t5
-	T6   Reg = 14 // $t6
-	T7   Reg = 15 // $t7
-	S0   Reg = 16 // $s0
-	S1   Reg = 17 // $s1
-	S2   Reg = 18 // $s2
-	S3   Reg = 19 // $s3
-	S4   Reg = 20 // $s4
-	S5   Reg = 21 // $s5
-	S6   Reg = 22 // $s6
-	S7   Reg = 23 // $s7
-	T8   Reg = 24 // $t8
-	T9   Reg = 25 // $t9
-	K0   Reg = 26 // $k0
-	K1   Reg = 26 // $k1
-	GP   Reg = 28 // $gp
-	SP   Reg = 29 // $sp
-	FP   Reg = 30 // $fp
-	RA   Reg = 31 // $ra
+	PC // $pc
 
-	// TODO: Figure out what register number and syntax name to use for hi, lo
-	// and pc registers.
-	HI Reg = RA + 1 + iota // $hi
-	LO                     // $lo
-	PC                     // $pc
+	// Integer multiply unit registers.
+	HI // $hi
+	LO // $lo
 
-	// CP0 Special Registers
-	// TODO: Figure out a better name for Co-processor (CP0) registers.
+	// CP0 (System control co-processor) special registers.
+	//
+	// order matters; CO0 registers are directly followed by CO1, CO2 and CO3
+	// registers.
 
-	// order matters; translating between CPU registers and COz registers.
+	// TODO: Find names for remaining CO0 registers.
+
+	CP0Reg0
+	CP0Reg1
+	BusCtrl // BusCtrl
+	Config  // Config
+	CP0Reg4
+	CP0Reg5
+	CP0Reg6
+	CP0Reg7
+	BadVaddr // BadVaddr
+	Count    // Count
+	PortSize // PortSize
+	Compare  // Compare
+	SR       // SR
+	Cause    // Cause
+	EPC      // EPC
+	PRId     // PRId
+	CP0Reg16
+	CP0Reg17
+	CP0Reg18
+	CP0Reg19
+	CP0Reg20
+	CP0Reg21
+	CP0Reg22
+	CP0Reg23
+	CP0Reg24
+	CP0Reg25
+	CP0Reg26
+	CP0Reg27
+	CP0Reg28
+	CP0Reg29
+	CP0Reg30
+	CP0Reg31
+
+	// CP1 (FPU) registers.
+
+	F0  // $f0
+	F1  // $f1
+	F2  // $f2
+	F3  // $f3
+	F4  // $f4
+	F5  // $f5
+	F6  // $f6
+	F7  // $f7
+	F8  // $f8
+	F9  // $f9
+	F10 // $f10
+	F11 // $f11
+	F12 // $f12
+	F13 // $f13
+	F14 // $f14
+	F15 // $f15
+	F16 // $f16
+	F17 // $f17
+	F18 // $f18
+	F19 // $f19
+	F20 // $f20
+	F21 // $f21
+	F22 // $f22
+	F23 // $f23
+	F24 // $f24
+	F25 // $f25
+	F26 // $f26
+	F27 // $f27
+	F28 // $f28
+	F29 // $f29
+	F30 // $f30
+	F31 // $f31
+
+	// CO2 Registers.
+	// TODO: Add CO2 registers.
+
 	C0  // $0
 	C1  // $1
 	C2  // $2
@@ -259,6 +339,42 @@ const (
 	C29 // $29
 	C30 // $30
 	C31 // $31
+
+	// CO3 Registers.
+	// TODO: Add CO3 registers.
+
+	CP3Reg0  // $cp3_0
+	CP3Reg1  // $cp3_1
+	CP3Reg2  // $cp3_2
+	CP3Reg3  // $cp3_3
+	CP3Reg4  // $cp3_4
+	CP3Reg5  // $cp3_5
+	CP3Reg6  // $cp3_6
+	CP3Reg7  // $cp3_7
+	CP3Reg8  // $cp3_8
+	CP3Reg9  // $cp3_9
+	CP3Reg10 // $cp3_10
+	CP3Reg11 // $cp3_11
+	CP3Reg12 // $cp3_12
+	CP3Reg13 // $cp3_13
+	CP3Reg14 // $cp3_14
+	CP3Reg15 // $cp3_15
+	CP3Reg16 // $cp3_16
+	CP3Reg17 // $cp3_17
+	CP3Reg18 // $cp3_18
+	CP3Reg19 // $cp3_19
+	CP3Reg20 // $cp3_20
+	CP3Reg21 // $cp3_21
+	CP3Reg22 // $cp3_22
+	CP3Reg23 // $cp3_23
+	CP3Reg24 // $cp3_24
+	CP3Reg25 // $cp3_25
+	CP3Reg26 // $cp3_26
+	CP3Reg27 // $cp3_27
+	CP3Reg28 // $cp3_28
+	CP3Reg29 // $cp3_29
+	CP3Reg30 // $cp3_30
+	CP3Reg31 // $cp3_31
 )
 
 // --- [ PC relative memory address ] ------------------------------------------

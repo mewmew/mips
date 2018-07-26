@@ -30,7 +30,9 @@ func parse(src []byte) error {
 		//fmt.Printf("addr: %08X\n", addr)
 		inst, err := mips.Decode(src[i:])
 		if err != nil {
-			return errors.WithStack(err)
+			log.Printf("error decoding addr 0x%08X; %v", addr, err)
+			continue
+			//return errors.WithStack(err)
 		}
 		fmt.Printf("ROM:%08X                 %s\n", addr, inst)
 	}

@@ -8,6 +8,12 @@ import (
 	"github.com/pkg/errors"
 )
 
+// References.
+//
+// [1]: The IDTR3051, R3052 RISController Hardware User's Manual.
+// [2]: MIPS32 Architecture For Programmers Volume II: The MIPS32 Instruction Set
+// [3]: IDT R30xx Family Software Reference Manual
+
 // Instruction encodings
 //
 //    R-type   Register       000000ss sssttttt dddddaaa aaffffff
@@ -22,77 +28,77 @@ import (
 //    +=========+====================================================+==========+===========================+
 //    |         | Load/Store Instructions                                                                   |
 //    +---------+----------------------------------------------------+----------+---------------------------+
-//    | LB      | Load Byte                                          | I-type   | LB      rt, offset(base)  |
-//    | LBU     | Load Byte Unsigned                                 | I-type   | LBU     rt, offset(base)  |
-//    | LH      | Load Halfword                                      | I-type   | LH      rt, offset(base)  |
-//    | LHU     | Load Halfword Unsigned                             | I-type   | LHU     rt, offset(base)  |
-//    | LW      | Load Word                                          | I-type   | LW      rt, offset(base)  |
-//    | LWL     | Load Word Left                                     | I-type   | LWL     rt, offset(base)  |
-//    | LWR     | Load Word Right                                    | I-type   | LWR     rt, offset(base)  |
-//    | SB      | Store Byte                                         | I-type   | SB      rt, offset(base)  |
-//    | SH      | Store Halfword                                     | I-type   | SH      rt, offset(base)  |
-//    | SW      | Store Word                                         | I-type   | SW      rt, offset(base)  |
-//    | SWL     | Store Word Left                                    | I-type   | SWL     rt, offset(base)  |
-//    | SWR     | Store Word Right                                   | I-type   | SWR     rt, offset(base)  |
+//    | LB      | Load Byte                                          | I-type   | LB      $t, offset($s)    |
+//    | LBU     | Load Byte Unsigned                                 | I-type   | LBU     $t, offset($s)    |
+//    | LH      | Load Halfword                                      | I-type   | LH      $t, offset($s)    |
+//    | LHU     | Load Halfword Unsigned                             | I-type   | LHU     $t, offset($s)    |
+//    | LW      | Load Word                                          | I-type   | LW      $t, offset($s)    |
+//    | LWL     | Load Word Left                                     | I-type   | LWL     $t, offset($s)    |
+//    | LWR     | Load Word Right                                    | I-type   | LWR     $t, offset($s)    |
+//    | SB      | Store Byte                                         | I-type   | SB      $t, offset($s)    |
+//    | SH      | Store Halfword                                     | I-type   | SH      $t, offset($s)    |
+//    | SW      | Store Word                                         | I-type   | SW      $t, offset($s)    |
+//    | SWL     | Store Word Left                                    | I-type   | SWL     $t, offset($s)    |
+//    | SWR     | Store Word Right                                   | I-type   | SWR     $t, offset($s)    |
 //    +---------+----------------------------------------------------+----------+---------------------------+
 //    |         | Arithmetic Instructions (ALU Immediate)                                                   |
 //    +---------+----------------------------------------------------+----------+---------------------------+
-//    | ADDI    | Add Immediate                                      | I-type   | ADDI    rt, rs, immediate |
-//    | ADDIU   | Add Immediate Unsigned                             | I-type   | ADDIU   rt, rs, immediate |
-//    | SLTI    | Set on Less Than Immediate                         | I-type   | SLTI    rt, rs, immediate |
-//    | SLTIU   | Set on Less Than Immediate Unsigned                | I-type   | SLTIU   rt, rs, immediate |
-//    | ANDI    | AND Immediate                                      | I-type   | ANDI    rt, rs, immediate |
-//    | ORI     | OR Immediate                                       | I-type   | ORI     rt, rs, immediate |
-//    | XORI    | Exclusive OR Immediate                             | I-type   | XORI    rt, rs, immediate |
-//    | LUI     | Load Upper Immediate                               | I-type   | LUI     rt, immediate     |
+//    | ADDI    | Add Immediate                                      | I-type   | ADDI    $t, $s, immediate |
+//    | ADDIU   | Add Immediate Unsigned                             | I-type   | ADDIU   $t, $s, immediate |
+//    | SLTI    | Set on Less Than Immediate                         | I-type   | SLTI    $t, $s, immediate |
+//    | SLTIU   | Set on Less Than Immediate Unsigned                | I-type   | SLTIU   $t, $s, immediate |
+//    | ANDI    | AND Immediate                                      | I-type   | ANDI    $t, $s, immediate |
+//    | ORI     | OR Immediate                                       | I-type   | ORI     $t, $s, immediate |
+//    | XORI    | Exclusive OR Immediate                             | I-type   | XORI    $t, $s, immediate |
+//    | LUI     | Load Upper Immediate                               | I-type   | LUI     $t, immediate     |
 //    +---------+----------------------------------------------------+----------+---------------------------+
 //    |         | Arithmetic Instructions (3-operand, register-type)                                        |
 //    +---------+----------------------------------------------------+----------+---------------------------+
-//    | ADD     | Add                                                | R-type   | ADD     rd, rs, rt        |
-//    | ADDU    | Add Unsigned                                       | R-type   | ADDU    rd, rs, rt        |
-//    | SUB     | Subtract                                           | R-type   | SUB     rd, rs, rt        |
-//    | SUBU    | Subtract Unsigned                                  | R-type   | SUBU    rd, rs, rt        |
-//    | SLT     | Set on Less Than                                   | R-type   | SLT     rd, rs, rt        |
-//    | SLTU    | Set on Less Than Unsigned                          | R-type   | SLTU    rd, rs, rt        |
-//    | AND     | AND                                                | R-type   | AND     rd, rs, rt        |
-//    | OR      | OR                                                 | R-type   | OR      rd, rs, rt        |
-//    | XOR     | Exclusive OR                                       | R-type   | XOR     rd, rs, rt        |
-//    | NOR     | NOR                                                | R-type   | NOR     rd, rs, rt        |
+//    | ADD     | Add                                                | R-type   | ADD     $d, $s, $t        |
+//    | ADDU    | Add Unsigned                                       | R-type   | ADDU    $d, $s, $t        |
+//    | SUB     | Subtract                                           | R-type   | SUB     $d, $s, $t        |
+//    | SUBU    | Subtract Unsigned                                  | R-type   | SUBU    $d, $s, $t        |
+//    | SLT     | Set on Less Than                                   | R-type   | SLT     $d, $s, $t        |
+//    | SLTU    | Set on Less Than Unsigned                          | R-type   | SLTU    $d, $s, $t        |
+//    | AND     | AND                                                | R-type   | AND     $d, $s, $t        |
+//    | OR      | OR                                                 | R-type   | OR      $d, $s, $t        |
+//    | XOR     | Exclusive OR                                       | R-type   | XOR     $d, $s, $t        |
+//    | NOR     | NOR                                                | R-type   | NOR     $d, $s, $t        |
 //    +---------+----------------------------------------------------+----------+---------------------------+
 //    |         | Shift Instructions                                                                        |
 //    +---------+----------------------------------------------------+----------+---------------------------+
-//    | SLL     | Shift Left Logical                                 | R-type   | SLL     rd, rt, shift     |
-//    | SRL     | Shift Right Logical                                | R-type   | SRL     rd, rt, shift     |
-//    | SRA     | Shift Right Arithmetic                             | R-type   | SRA     rd, rt, shift     |
-//    | SLLV    | Shift Left Logical Variable                        | R-type   | SLLV    rd, rt, rs        |
-//    | SRLV    | Shift Right Logical Variable                       | R-type   | SRLV    rd, rt, rs        |
-//    | SRAV    | Shift Right Arithmetic Variable                    | R-type   | SRAV    rd, rt, rs        |
+//    | SLL     | Shift Left Logical                                 | R-type   | SLL     $d, $t, shift     |
+//    | SRL     | Shift Right Logical                                | R-type   | SRL     $d, $t, shift     |
+//    | SRA     | Shift Right Arithmetic                             | R-type   | SRA     $d, $t, shift     |
+//    | SLLV    | Shift Left Logical Variable                        | R-type   | SLLV    $d, $t, $s        |
+//    | SRLV    | Shift Right Logical Variable                       | R-type   | SRLV    $d, $t, $s        |
+//    | SRAV    | Shift Right Arithmetic Variable                    | R-type   | SRAV    $d, $t, $s        |
 //    +---------+----------------------------------------------------+----------+---------------------------+
 //    |         | Multiply/Divide Instructions                                                              |
 //    +---------+----------------------------------------------------+----------+---------------------------+
-//    | MULT    | Multiply                                           | R-type   | MULT    rs, rt            |
-//    | MULTU   | Multiply Unsigned                                  | R-type   | MULTU   rs, rt            |
-//    | DIV     | Divide                                             | R-type   | DIV     rs, rt            |
-//    | DIVU    | Divide Unsigned                                    | R-type   | DIVU    rs, rt            |
-//    | MFHI    | Move From HI                                       | R-type   | MFHI    rd                |
-//    | MTHI    | Move To HI                                         | R-type   | MTHI    rd                |
-//    | MFLO    | Move From LO                                       | R-type   | MFLO    rd                |
-//    | MTLO    | Move To LO                                         | R-type   | MTLO    rd                |
+//    | MULT    | Multiply                                           | R-type   | MULT    $s, $t            |
+//    | MULTU   | Multiply Unsigned                                  | R-type   | MULTU   $s, $t            |
+//    | DIV     | Divide                                             | R-type   | DIV     $s, $t            |
+//    | DIVU    | Divide Unsigned                                    | R-type   | DIVU    $s, $t            |
+//    | MFHI    | Move From HI                                       | R-type   | MFHI    $d                |
+//    | MTHI    | Move To HI                                         | R-type   | MTHI    $s                |
+//    | MFLO    | Move From LO                                       | R-type   | MFLO    $d                |
+//    | MTLO    | Move To LO                                         | R-type   | MTLO    $s                |
 //    +---------+----------------------------------------------------+----------+---------------------------+
 //    |         | Jump and Branch Instructions                                                              |
 //    +---------+----------------------------------------------------+----------+---------------------------+
 //    | J       | Jump                                               | J-type   | J       target            |
 //    | JAL     | Jump and Link                                      | J-type   | JAL     target            |
-//    | JR      | Jump to Register                                   | R-type   | JR      rs                |
-//    | JALR    | Jump and Link Register                             | R-type   | JALR    rs, rd            |
-//    | BEQ     | Branch on Equal                                    | I-type   | BEQ     rs, rt, offset    |
-//    | BNE     | Branch on Not Equal                                | I-type   | BNE     rs, rt, offset    |
-//    | BLEZ    | Branch on Less than or Equal to Zero               | I-type   | BLEZ    rs, offset        |
-//    | BGTZ    | Branch on Greater Than Zero                        | I-type   | BGTZ    rs, offset        |
-//    | BLTZ    | Branch on Less Than Zero                           | I-type   | BLTZ    rs, offset        |
-//    | BGEZ    | Branch on Greater Than or Equal to Zero            | I-type   | BGEZ    rs, offset        |
-//    | BLTZAL  | Branch on Less Than Zero and Link                  | I-type   | BLTZAL  rs, offset        |
-//    | BGEZAL  | Branch on Greater Than or Equal to Zero and Link   | I-type   | BGEZAL  rs, offset        |
+//    | JR      | Jump to Register                                   | R-type   | JR      $s                |
+//    | JALR    | Jump and Link Register                             | R-type   | JALR    $s, $d            |
+//    | BEQ     | Branch on Equal                                    | I-type   | BEQ     $s, $t, offset    |
+//    | BNE     | Branch on Not Equal                                | I-type   | BNE     $s, $t, offset    |
+//    | BLEZ    | Branch on Less than or Equal to Zero               | I-type   | BLEZ    $s, offset        |
+//    | BGTZ    | Branch on Greater Than Zero                        | I-type   | BGTZ    $s, offset        |
+//    | BLTZ    | Branch on Less Than Zero                           | I-type   | BLTZ    $s, offset        |
+//    | BGEZ    | Branch on Greater Than or Equal to Zero            | I-type   | BGEZ    $s, offset        |
+//    | BLTZAL  | Branch on Less Than Zero and Link                  | I-type   | BLTZAL  $s, offset        |
+//    | BGEZAL  | Branch on Greater Than or Equal to Zero and Link   | I-type   | BGEZAL  $s, offset        |
 //    +---------+----------------------------------------------------+----------+---------------------------+
 //    |         | Special Instructions                                                                      |
 //    +---------+----------------------------------------------------+----------+---------------------------+
@@ -101,20 +107,20 @@ import (
 //    +---------+----------------------------------------------------+----------+---------------------------+
 //    |         | Coprocessor Instructions                                                                  |
 //    +---------+----------------------------------------------------+----------+---------------------------+
-//    | LWCz    | Load Word from Coprocessor                         | I-type   | LWCz     rt, offset(base) |
-//    | SWCz    | Store Word to Coprocessor                          | I-type   | SWCz     rt, offset(base) |
-//    | MTCz    | Move To Coprocessor                                | x-type   | MTCz     rt, rd           |
-//    | MFCz    | Move From Coprocessor                              | x-type   | MFCz     rt, rd           |
-//    | CTCz    | Move Control To Coprocessor                        | x-type   | CTCz     rt, rd           |
-//    | CFCz    | Move Control From Coprocessor                      | x-type   | CFCz     rt, rd           |
+//    | LWCz    | Load Word from Coprocessor                         | I-type   | LWCz     $t, offset($s)   |
+//    | SWCz    | Store Word to Coprocessor                          | I-type   | SWCz     $t, offset($s)   |
+//    | MTCz    | Move To Coprocessor                                | x-type   | MTCz     $t, $d           |
+//    | MFCz    | Move From Coprocessor                              | x-type   | MFCz     $t, $d           |
+//    | CTCz    | Move Control To Coprocessor                        | x-type   | CTCz     $t, $d           |
+//    | CFCz    | Move Control From Coprocessor                      | x-type   | CFCz     $t, $d           |
 //    | COPz    | Coprocessor Operation                              | x-type   | COPz     cofunc           |
 //    | BCzT    | Branch on Coprocessor z True                       | x-type   | BCzT     offset           |
 //    | BCzF    | Branch on Coprocessor z False                      | x-type   | BCzF     offset           |
 //    +---------+----------------------------------------------------+----------+---------------------------+
 //    |         | System Control Coprocessor (CP0) Instructions                                             |
 //    +---------+----------------------------------------------------+----------+---------------------------+
-//    | MTC0    | Move To CP0                                        | x-type   | MTC0 rt, rd               |
-//    | MFC0    | Move From CP0                                      | x-type   | MFC0 rt, rd               |
+//    | MTC0    | Move To CP0                                        | x-type   | MTC0 $t, $d               |
+//    | MFC0    | Move From CP0                                      | x-type   | MFC0 $t, $d               |
 //    | TLBR    | Read indexed TLB entry                             | x-type   | TLBR                      |
 //    | TLBWI   | Write indexed TLB entry                            | x-type   | TLBWI                     |
 //    | TLBWR   | Write Random TLB entry                             | x-type   | TLBWR                     |
@@ -141,23 +147,16 @@ func Decode(src []byte) (Inst, error) {
 	bits := binary.LittleEndian.Uint32(src)
 	opcode := bits & opcodeMask >> 26
 	op := opFromOpcode[opcode]
-	if op == invalid {
-		// TODO: re-enable panic.
-		log.Printf("support for opcode bit pattern %06b not yet implemented", opcode)
-		return Inst{}, nil
-		//panic(fmt.Errorf("support for opcode bit pattern %06b not yet implemented", opcode))
-	}
 	switch op {
+	case invalid:
+		return Inst{}, errors.Errorf("support for opcode bit pattern %06b not yet implemented", opcode)
 	case special:
 		return decodeRegInst(bits)
 	case bcond:
 		cond := bits & tRegMask >> 16
 		op := opFromCond[cond]
 		if op == invalid {
-			// TODO: re-enable panic.
-			log.Printf("support for cond bit pattern %06b not yet implemented", cond)
-			return Inst{}, nil
-			//panic(fmt.Errorf("support for cond bit pattern %06b not yet implemented", cond))
+			return Inst{}, errors.Errorf("support for conditional bit pattern %06b not yet implemented", cond)
 		}
 		return decodeImmInst(op, bits)
 	case J, JAL:
@@ -169,137 +168,201 @@ func Decode(src []byte) (Inst, error) {
 	}
 }
 
-// --- [ Instruction with register encoding ] ----------------------------------
+// --- [ R-type ] --------------------------------------------------------------
 
 // decodeRegInst decodes an instruction with register encoding.
 func decodeRegInst(bits uint32) (Inst, error) {
+	var args Args
 	s := Reg(bits & sRegMask >> 21)
 	t := Reg(bits & tRegMask >> 16)
 	d := Reg(bits & dRegMask >> 11)
 	a := Imm{Imm: bits & aImmMask >> 6, Decimal: true}
 	f := bits & funcMask
-	//fmt.Printf("s reg:  %05b\n", uint32(s))
-	//fmt.Printf("t reg:  %05b\n", uint32(t))
-	//fmt.Printf("d reg:  %05b\n", uint32(d))
-	//fmt.Printf("a imm:  %05b\n", uint32(a))
-	//fmt.Printf("func:   %06b\n", uint32(f))
 	op := opFromFunc[f]
-	if op == invalid {
-		// TODO: re-enable panic.
-		log.Printf("support for function bit pattern %06b not yet implemented", f)
-		return Inst{}, nil
-		//panic(fmt.Errorf("support for function bit pattern %06b not yet implemented", f))
-	}
-	// +-------------+-----------------+-----------+
-	// | Syntax      | Template        | Encoding  |
-	// +=============+=================+===========+
-	// | ArithLog    | f $d, $s, $t    | Register  |
-	// | DivMult     | f $s, $t        | Register  |
-	// | Shift       | f $d, $t, a     | Register  |
-	// | ShiftV      | f $d, $t, $s    | Register  |
-	// | JumpR       | f $s            | Register  |
-	// | MoveFrom    | f $d            | Register  |
-	// | MoveTo      | f $s            | Register  |
-	// +-------------+-----------------+-----------+
-	var args Args
 	switch op {
-	// ArithLog
-	case ADD, ADDU, SUB, SUBU, AND, OR, XOR, NOR, SLTU, SLT:
+	case invalid:
+		return Inst{}, errors.Errorf("support for function bit pattern %06b not yet implemented", f)
+
+	// Arithmetic Instructions (3-operand, register-type)
+	case ADD, ADDU, SUB, SUBU, SLT, SLTU, AND, OR, XOR, NOR:
+		// Syntax.
+		//
+		//    ADD     $d, $s, $t
+		//    ADDU    $d, $s, $t
+		//    SUB     $d, $s, $t
+		//    SUBU    $d, $s, $t
+		//    SLT     $d, $s, $t
+		//    SLTU    $d, $s, $t
+		//    AND     $d, $s, $t
+		//    OR      $d, $s, $t
+		//    XOR     $d, $s, $t
+		//    NOR     $d, $s, $t
 		args[0] = d
 		args[1] = s
 		args[2] = t
-	// DivMult
-	case MULT, MULTU, DIV, DIVU:
-		args[0] = s
-		args[1] = t
-	// Shift
+
+	// Shift Instructions
 	case SLL, SRL, SRA:
+		// Syntax.
+		//
+		//    SLL     $d, $t, shift
+		//    SRL     $d, $t, shift
+		//    SRA     $d, $t, shift
 		args[0] = d
 		args[1] = t
 		args[2] = a
-	// ShiftV
 	case SLLV, SRLV, SRAV:
+		// Syntax.
+		//
+		//    SLLV    $d, $t, $s
+		//    SRLV    $d, $t, $s
+		//    SRAV    $d, $t, $s
 		args[0] = d
 		args[1] = t
 		args[2] = s
-	// JumpR
+
+	// Multiply/Divide Instructions
+	case MULT, MULTU, DIV, DIVU:
+		// Syntax.
+		//
+		//    MULT    $s, $t
+		//    MULTU   $s, $t
+		//    DIV     $s, $t
+		//    DIVU    $s, $t
+		args[0] = s
+		args[1] = t
+	case MFHI, MFLO:
+		// Syntax.
+		//
+		//    MFHI    $d
+		//    MFLO    $d
+		args[0] = d
+	case MTHI, MTLO:
+		// Note, the syntax of MTHI and MTLO was incorrect in [1]. The correct
+		// syntax is specified in [2].
+
+		// Syntax.
+		//
+		//    MTHI    $s
+		//    MTLO    $s
+		args[0] = s
+
+	// Jump and Branch Instructions
 	case JR:
+		// Syntax.
+		//
+		//    JR      $s
 		args[0] = s
 	case JALR:
+		// Syntax.
+		//
+		//    JALR    $s, $d
 		args[0] = s
 		args[1] = d
-	// MoveFrom
-	case MFHI, MFLO:
-		args[0] = d
-	// MoveTo
-	case MTHI, MTLO:
-		args[0] = s
+
+	// Special Instructions
 	case SYSCALL:
-		// TODO: Figure out if syscall takes arguments.
+		// Syntax.
+		//
+		//    SYSCALL
+		// TODO: Figure out if SYSCALL takes any arguments.
 	case BREAK:
-		// TODO: Figure out if break takes arguments.
+		// Syntax.
+		//
+		//    BREAK
+		const codeMask = 0x03FFFFC0 // 0b00000011111111111111111111000000
+		code := Imm{Imm: bits & codeMask >> 6}
+		args[0] = code
+
 	default:
-		// TODO: re-enable panic.
-		log.Printf("support for opcode %v not yet implemented", op)
-		return Inst{}, nil
-		//panic(fmt.Errorf("support for opcode %v not yet implemented", op))
+		panic(fmt.Errorf("support for opcode %v not yet implemented", op))
 	}
 	return Inst{Op: op, Enc: bits, Args: args}, nil
 }
 
-// --- [ Instruction with immediate encoding ] ---------------------------------
+// --- [ I-type ] --------------------------------------------------------------
 
 // decodeImmInst decodes an instruction with immediate encoding.
 func decodeImmInst(op Op, bits uint32) (Inst, error) {
-	// +-------------+-----------------+-----------+
-	// | Syntax      | Template        | Encoding  |
-	// +=============+=================+===========+
-	// | ArithLogI   | o $t, $s, i     | Immediate |
-	// | LoadI       | o $t, immed32   | Immediate |
-	// | Branch      | o $s, $t, label | Immediate |
-	// | BranchZ     | o $s, label     | Immediate |
-	// | LoadStore   | o $t, i($s)     | Immediate |
-	// +-------------+-----------------+-----------+
+	var args Args
 	s := Reg(bits & sRegMask >> 21)
 	t := Reg(bits & tRegMask >> 16)
 	i := Imm{Imm: bits & imm16Mask}
-	//fmt.Printf("s reg:  %05b\n", uint32(s))
-	//fmt.Printf("t reg:  %05b\n", uint32(t))
-	//fmt.Printf("imm16:  %016b\n", uint32(i))
-	var args Args
 	switch op {
-	// ArithLogI
-	case ADDI, ADDIU, SLTIU, SLTI, ANDI, ORI, XORI:
-		args[0] = t
-		args[1] = s
-		args[2] = i
-	// LoadI
-	case LUI:
-		args[0] = t
-		args[1] = i
-	// Branch
-	case BEQ, BNE:
-		args[0] = s
-		args[1] = t
-		args[2] = PCRel(int16(i.Imm) * 4)
-	// BranchZ
-	case BLEZ, BGTZ, BGEZ, BGEZAL, BLTZ:
-		args[0] = s
-		args[1] = PCRel(int16(i.Imm) * 4)
-	// LoadStore
+	// Load/Store Instructions
 	case LB, LBU, LH, LHU, LW, LWL, LWR, SB, SH, SW, SWL, SWR:
+		// Syntax.
+		//
+		//    LB      $t, offset($s)
+		//    LBU     $t, offset($s)
+		//    LH      $t, offset($s)
+		//    LHU     $t, offset($s)
+		//    LW      $t, offset($s)
+		//    LWL     $t, offset($s)
+		//    LWR     $t, offset($s)
+		//    SB      $t, offset($s)
+		//    SH      $t, offset($s)
+		//    SW      $t, offset($s)
+		//    SWL     $t, offset($s)
+		//    SWR     $t, offset($s)
 		args[0] = t
 		m := Mem{
 			Base:   s,
 			Offset: int32(int16(i.Imm)),
 		}
 		args[1] = m
+
+	// Arithmetic Instructions (ALU Immediate)
+	case ADDI, ADDIU, SLTI, SLTIU, ANDI, ORI, XORI:
+		// Syntax.
+		//
+		//    ADDI    $t, $s, immediate
+		//    ADDIU   $t, $s, immediate
+		//    SLTI    $t, $s, immediate
+		//    SLTIU   $t, $s, immediate
+		//    ANDI    $t, $s, immediate
+		//    ORI     $t, $s, immediate
+		//    XORI    $t, $s, immediate
+		args[0] = t
+		args[1] = s
+		args[2] = i
+	case LUI:
+		// Syntax.
+		//
+		//    LUI     $t, immediate
+		args[0] = t
+		args[1] = i
+
+	// Jump and Branch Instructions
+
+	case BEQ, BNE:
+		// Syntax.
+		//
+		//    BEQ     $s, $t, offset
+		//    BNE     $s, $t, offset
+		args[0] = s
+		args[1] = t
+		args[2] = PCRel(int16(i.Imm) * 4)
+	case BLEZ, BGTZ, BLTZ, BGEZ, BLTZAL, BGEZAL:
+		// Syntax.
+		//
+		//    BLEZ    $s, offset
+		//    BGTZ    $s, offset
+		//    BLTZ    $s, offset
+		//    BGEZ    $s, offset
+		//    BLTZAL  $s, offset
+		//    BGEZAL  $s, offset
+		args[0] = s
+		args[1] = PCRel(int16(i.Imm) * 4)
+
+	// TODO: continue here.
+
 	// Coprocessor Instructions
 	case LWC0, LWC1, LWC2, LWC3, SWC0, SWC1, SWC2, SWC3:
 		// Syntax.
 		//
-		//    LWCz     rt, offset(base)
-		//    SWCz     rt, offset(base)
+		//    LWCz     $t, offset($s)
+		//    SWCz     $t, offset($s)
 		args[0] = t
 		m := Mem{
 			Base:   s,
@@ -315,144 +378,150 @@ func decodeImmInst(op Op, bits uint32) (Inst, error) {
 	return Inst{Op: op, Enc: bits, Args: args}, nil
 }
 
-// --- [ Instruction with jump encoding ] --------------------------------------
+// --- [ J-type ] --------------------------------------------------------------
 
 // decodeJumpInst decodes an instruction with jump encoding.
 func decodeJumpInst(op Op, bits uint32) (Inst, error) {
-	i := Imm{Imm: bits & imm26Mask}
-	//fmt.Printf("imm26:  %026b\n", uint32(i))
-	// +-------------+-----------------+-----------+
-	// | Syntax      | Template        | Encoding  |
-	// +=============+=================+===========+
-	// | Jump        | o label         | Jump      |
-	// +-------------+-----------------+-----------+
 	var args Args
+	i := Imm{Imm: bits & imm26Mask}
 	switch op {
-	// Jump
+	// Jump and Branch Instructions
 	case J, JAL:
+		// Syntax.
+		//
+		//    J       target
+		//    JAL     target
 		i.Imm <<= 2
 		args[0] = i
 	default:
-		// TODO: re-enable panic.
-		log.Printf("support for opcode %v not yet implemented", op)
-		return Inst{}, nil
-		//panic(fmt.Errorf("support for opcode %v not yet implemented", op))
+		panic(fmt.Errorf("support for opcode %v not yet implemented", op))
 	}
 	return Inst{Op: op, Enc: bits, Args: args}, nil
 }
 
-// --- [ Instruction with co-processor-dependent encoding ] --------------------
+// --- [ x-type ] --------------------------------------------------------------
 
 // Co-processor computational instructions have co-processor-dependent formats
 // (see co-processor manuals).
 
 // decodeCoInst decodes an instruction with co-processor-dependent encoding.
 func decodeCoInst(op Op, bits uint32) (Inst, error) {
-	//fmt.Printf("data26:  %026b\n", uint32(i))
-	// +-------------+-----------------+-----------+
-	// | Syntax      | Template        | Encoding  |
-	// +=============+=================+===========+
-	// +-------------+-----------------+-----------+
-	//
-	// TODO: Add syntax for co-processor instructions.
 	var args Args
 	switch op {
 	case COP0, COP1, COP2, COP3:
-		s := Reg(bits & sRegMask >> 21)
-		t := Reg(bits & tRegMask >> 16)
-		d := Reg(bits & dRegMask >> 11)
-		//a := Imm{Imm: bits & aImmMask >> 6}
-		const f5Mask = 0x0000001F // 0b00000000000000000000000000011111
-		f5 := bits & f5Mask
-		//fmt.Printf("s reg:  %05b\n", uint32(s))
-		//fmt.Printf("t reg:  %05b\n", uint32(t))
-		//fmt.Printf("d reg:  %05b\n", uint32(d))
-		//fmt.Printf("a imm:  %05b\n", uint32(a))
-		//fmt.Printf("f5:     %05b\n", uint32(f5))
-		if o := opFromCopS[s]; o != invalid {
+		const subopMask = 0x03E00000 // 0b00000011111000000000000000000000
+		subop := bits & subopMask >> 21
+		// Co-Processor Specific Operations.
+		const coMask = 0x10 // 0b10000
+		if subop&coMask != 0 {
+			switch op {
+			case COP0:
+				const cop0Mask = 0x0000001F // 0b00000000000000000000000000011111
+				cop0 := bits & cop0Mask
+				o := opFromCop0[cop0]
+				switch o {
+				case invalid:
+					return Inst{}, errors.Errorf("support for COP0 bit pattern %05b not yet implemented", cop0)
+				case TLBR, TLBWI, TLBWR, TLBP, RFE:
+					// Syntax.
+					//
+					//    TLBR
+					//    TLBWI
+					//    TLBWR
+					//    TLBP
+					//    RFE
+					return Inst{Op: o, Enc: bits, Args: args}, nil
+				default:
+					panic(fmt.Errorf("support for COP0 opcode %v not yet implemented", o))
+				}
+			case COP1:
+				// TODO: implement.
+				panic("support for COP1 specific operations not yet implemented")
+			case COP2:
+				const cofuncMask = 0x01FFFFFF // 0b00000001111111111111111111111111
+				cofunc := Imm{Imm: bits & cofuncMask}
+				args[0] = cofunc
+				return Inst{Op: op, Enc: bits, Args: args}, nil
+			case COP3:
+				// TODO: implement.
+				panic("support for COP3 specific operations not yet implemented")
+			}
+		}
+		z := counit(op)
+		o := opFromCoSubop[subop]
+		switch o {
+		case invalid:
+			panic(fmt.Sprintf("support for co-processor suboperation bit pattern %06b not yet implemented", subop))
+		case MTC0, MFC0, CTC0, CFC0:
+			t := Reg(bits & tRegMask >> 16)
+			d := Reg(bits & dRegMask >> 11)
 			// Syntax
 			//
-			//    MTCz     rt, rd
-			//    MFCz     rt, rd
-			//    CTCz     rt, rd
-			//    CFCz     rt, rd
-			switch o {
-			case MTC0:
-				args[0] = t
-				args[1] = C0 + d
-			case MFC0:
-				args[0] = t
-				args[1] = C0 + d
-			case CTC0:
-				args[0] = t
-				args[1] = C0 + d
-			case CFC0:
-				// TODO: handle arguments.
-			case BCC0:
-				// TODO: handle arguments.
-			default:
-				// TODO: re-enable panic.
-				log.Printf("support for co-processor opcode %v not yet implemented", o)
-				return Inst{}, nil
-				//panic(fmt.Errorf("support for co-processor opcode %v not yet implemented", o))
-			}
-			op = fixCoID(op, o)
-		} else if o := opFromCopT[t]; o != invalid {
-			// TODO: Implement.
-			log.Printf("support for co-processor opcode t %v not yet implemented", o)
-			op = fixCoID(op, o)
-			return Inst{}, nil
-		} else if o := opFromCop0[f5]; o != invalid {
-			// TODO: Implement.
-			log.Printf("support for co-processor opcode f5 %v not yet implemented", o)
-			op = fixCoID(op, o)
-		} else {
-			// TODO: Validate argument.
-			const imm24Mask = 0x00FFFFFF // 0b00000000111111111111111111111111
-			i := Imm{Imm: bits & imm24Mask}
+			//    MTCz     $t, $d // TODO: double check reg.
+			//    MFCz     $t, $d
+			//    CTCz     $t, $d
+			//    CFCz     $t, $d
+			args[0] = t
+			args[1] = coreg(d, z)
+			return Inst{Op: coop(o, z), Enc: bits, Args: args}, nil
+		case BCC0:
+			// TODO: handle arguments.
+			const bccondMask = 0x03E00000 // 0b00000011111000000000000000000000
+			bccond := bits & bccondMask >> 21
+			o := opFromBCCond[bccond]
+			i := Imm{Imm: bits & imm16Mask}
 			args[0] = i
+			return Inst{Op: coop(o, z), Enc: bits, Args: args}, nil
+		default:
+			panic(fmt.Errorf("support for opcode %v not yet implemented", o))
 		}
-
-		//args[0] = i // TODO: Figure out which COP instructions that should have
-		//arguments.
 	default:
 		// TODO: re-enable panic.
 		log.Printf("support for opcode %v not yet implemented", op)
 		return Inst{}, nil
 		//panic(fmt.Errorf("support for opcode %v not yet implemented", op))
 	}
-	return Inst{Op: op, Enc: bits, Args: args}, nil
 }
 
 // ### [ Helper functions ] ####################################################
 
-// fixCoID fixes the co-processor ID of the opcode.
-func fixCoID(orig, op Op) Op {
-	n := 0
-	switch orig {
-	case COP0:
-		n = 0
-	case COP1:
-		n = 1
-	case COP2:
-		n = 2
-	case COP3:
-		n = 3
-	default:
-		panic(fmt.Errorf("invalid COP opcode; expected COP0-3, got %v", orig))
-	}
+// counit returns the co-processor unit ID from the given COPz opcode.
+func counit(op Op) int {
 	switch op {
-	case MFC0, MTC0, CFC0, CTC0, BCC0, BC0F, BC0T:
-		return op + Op(n)
-	case TLBR, TLBWI, TLBWR, TLBP, RFE:
-		return op // always on CO0
+	case COP0:
+		return 0
+	case COP1:
+		return 1
+	case COP2:
+		return 2
+	case COP3:
+		return 3
+	default:
+		panic(fmt.Errorf("invalid COPz opcode; expected COP0, COP1, COP2 or COP3, got %v", op))
 	}
-	return orig
 }
 
-// Reference. The IDTR3051, R3052 RISController Hardware User's Manual.
-//
-// Chapter 2: INSTRUCTION SET ARCHITECTURE. R3051 OPCODE ENCODING
+// coreg returns the registers r of co-processor unit z.
+func coreg(r Reg, z int) Reg {
+	// Number of registers in co-processor.
+	const ncoregs = 32
+	first := CP0Reg0 + Reg(z*ncoregs)
+	return first + r
+}
+
+// coop returns the operation op of co-processor unit z.
+func coop(op Op, z int) Op {
+	switch op {
+	case MFC0, MTC0, CFC0, CTC0, BCC0, BC0F, BC0T:
+		return op + Op(z)
+	case TLBR, TLBWI, TLBWR, TLBP, RFE:
+		return op // always on CO0
+	default:
+		panic(fmt.Errorf("support for opcode %v not yet implemented", op))
+	}
+}
+
+// ref: Chapter 2: INSTRUCTION SET ARCHITECTURE. R3051 OPCODE ENCODING [1]
 
 // opFromOpcode maps from opcode bit pattern to MIPS opcode.
 var opFromOpcode = [...]Op{
@@ -628,8 +697,9 @@ var opFromCond = [...]Op{
 
 // TODO: Add tables for COPz, BCzF/T and CP0 from page 37.
 
-// opFromCopS maps from co-processor bit pattern (bits[21:26]) to MIPS opcode.
-var opFromCopS = [...]Op{
+// opFromCoSubop maps from co-processor suboperation bit pattern (bits[21:26])
+// to MIPS opcode.
+var opFromCoSubop = [...]Op{
 	0x00: MFC0,    // 0b00000; actual co-processor ID determined by COPz
 	0x01: invalid, // 0b00001
 	0x02: CFC0,    // 0b00010; actual co-processor ID determined by COPz
@@ -665,8 +735,9 @@ var opFromCopS = [...]Op{
 	0x1F: invalid, // 0b11111
 }
 
-// opFromCopT maps from co-processor bit pattern (bits[16:21]) to MIPS opcode.
-var opFromCopT = [...]Op{
+// opFromBCCond maps from COPz BC condition bit pattern (bits[16:21]) to MIPS
+// opcode.
+var opFromBCCond = [...]Op{
 	0x00: BC0F,    // 0b00000; actual co-processor ID determined by COPz
 	0x01: BC0T,    // 0b00001; actual co-processor ID determined by COPz
 	0x02: invalid, // 0b00010
@@ -701,7 +772,7 @@ var opFromCopT = [...]Op{
 	0x1F: invalid, // 0b11111
 }
 
-// opFromCop0 maps from co-processor bit pattern (bits[0:4]) to MIPS opcode.
+// opFromCop0 maps from COP0 bit pattern (bits[0:4]) to MIPS opcode.
 var opFromCop0 = [...]Op{
 	0x00: invalid, // 0b00000
 	0x01: TLBR,    // 0b00001
