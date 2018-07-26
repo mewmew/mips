@@ -457,7 +457,7 @@ func decodeCoInst(op Op, bits uint32) (Inst, error) {
 			d := Reg(bits & dRegMask >> 11)
 			// Syntax
 			//
-			//    MTCz     $t, $d // TODO: double check reg.
+			//    MTCz     $t, $d
 			//    MFCz     $t, $d
 			//    CTCz     $t, $d
 			//    CFCz     $t, $d
@@ -465,7 +465,6 @@ func decodeCoInst(op Op, bits uint32) (Inst, error) {
 			args[1] = coreg(d, z)
 			return Inst{Op: coop(o, z), Enc: bits, Args: args}, nil
 		case BCC0:
-			// TODO: handle arguments.
 			const bccondMask = 0x03E00000 // 0b00000011111000000000000000000000
 			bccond := bits & bccondMask >> 21
 			o := opFromBCCond[bccond]
@@ -694,8 +693,6 @@ var opFromCond = [...]Op{
 	0x1E: invalid, // 0b11110
 	0x1F: invalid, // 0b11111
 }
-
-// TODO: Add tables for COPz, BCzF/T and CP0 from page 37.
 
 // opFromCoSubop maps from co-processor suboperation bit pattern (bits[21:26])
 // to MIPS opcode.

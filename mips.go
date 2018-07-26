@@ -183,8 +183,8 @@ type Arg interface {
 
 //go:generate stringer -linecomment -type Reg
 
-// A Reg is a single register.
-// The zero value denotes $zero, not the absence of a register.
+// A Reg is a single register. The zero value denotes $zero, not the absence of
+// a register.
 type Reg uint8
 
 // Registers.
@@ -229,13 +229,11 @@ const (
 	HI // $hi
 	LO // $lo
 
-	// CP0 (System control co-processor) special registers.
-	//
 	// order matters; CO0 registers are directly followed by CO1, CO2 and CO3
 	// registers.
 
+	// CP0 (System control co-processor) special registers.
 	// TODO: Find names for remaining CO0 registers.
-
 	CP0Reg0
 	CP0Reg1
 	BusCtrl // BusCtrl
@@ -270,7 +268,6 @@ const (
 	CP0Reg31
 
 	// CP1 (FPU) registers.
-
 	F0  // $f0
 	F1  // $f1
 	F2  // $f2
@@ -305,7 +302,6 @@ const (
 	F31 // $f31
 
 	// CO2 Registers.
-
 	CO2Reg0  // $0
 	CO2Reg1  // $1
 	CO2Reg2  // $2
@@ -341,7 +337,6 @@ const (
 
 	// CO3 Registers.
 	// TODO: Add CO3 registers.
-
 	CP3Reg0  // $cp3_0
 	CP3Reg1  // $cp3_1
 	CP3Reg2  // $cp3_2
@@ -398,6 +393,7 @@ type Mem struct {
 
 // String returns the string representation of the memory reference.
 func (m Mem) String() string {
+	// TODO: Figure out what format to use for memory offsets.
 	if m.Offset < 10 {
 		return fmt.Sprintf("%d(%s)", m.Offset, m.Base)
 	}
