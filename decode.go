@@ -102,8 +102,8 @@ import (
 //    +---------+----------------------------------------------------+----------+---------------------------+
 //    |         | Special Instructions                                                                      |
 //    +---------+----------------------------------------------------+----------+---------------------------+
-//    | SYSCALL | System Call                                        | R-type   | SYSCALL                   |
-//    | BREAK   | Break                                              | R-type   | BREAK                     |
+//    | SYSCALL | System Call                                        | R-type   | SYSCALL code              |
+//    | BREAK   | Break                                              | R-type   | BREAK   code              |
 //    +---------+----------------------------------------------------+----------+---------------------------+
 //    |         | Coprocessor Instructions                                                                  |
 //    +---------+----------------------------------------------------+----------+---------------------------+
@@ -161,6 +161,7 @@ func Decode(src []byte) (Inst, error) {
 		return decodeImmInst(op, bits)
 	case J, JAL:
 		return decodeJumpInst(op, bits)
+	// Coprocessor Instructions
 	case COP0, COP1, COP2, COP3:
 		return decodeCoInst(op, bits)
 	default:
@@ -261,15 +262,11 @@ func decodeRegInst(bits uint32) (Inst, error) {
 		args[1] = d
 
 	// Special Instructions
-	case SYSCALL:
+	case SYSCALL, BREAK:
 		// Syntax.
 		//
-		//    SYSCALL
-		// TODO: Figure out if SYSCALL takes any arguments.
-	case BREAK:
-		// Syntax.
-		//
-		//    BREAK
+		//    SYSCALL code
+		//    BREAK   code
 		const codeMask = 0x03FFFFC0 // 0b00000011111111111111111111000000
 		code := Imm{Imm: bits & codeMask >> 6}
 		args[0] = code
@@ -281,6 +278,10 @@ func decodeRegInst(bits uint32) (Inst, error) {
 }
 
 // --- [ I-type ] --------------------------------------------------------------
+
+// The destination address of a branch instruction is pc + target; where pc is
+// the address of the delay slot instruction and target is the immediate shifted
+// two bits to the left.
 
 // decodeImmInst decodes an instruction with immediate encoding.
 func decodeImmInst(op Op, bits uint32) (Inst, error) {
@@ -355,8 +356,6 @@ func decodeImmInst(op Op, bits uint32) (Inst, error) {
 		args[0] = s
 		args[1] = PCRel(int16(i.Imm) * 4)
 
-	// TODO: continue here.
-
 	// Coprocessor Instructions
 	case LWC0, LWC1, LWC2, LWC3, SWC0, SWC1, SWC2, SWC3:
 		// Syntax.
@@ -379,6 +378,11 @@ func decodeImmInst(op Op, bits uint32) (Inst, error) {
 }
 
 // --- [ J-type ] --------------------------------------------------------------
+
+// The destination address of jump instructions is (pc&0xF0000000 + target);
+// where pc is the address of the jump instruction -- from which the 4 most
+// significant bits are used -- and target is the immediate shifted two bits to
+// the left.
 
 // decodeJumpInst decodes an instruction with jump encoding.
 func decodeJumpInst(op Op, bits uint32) (Inst, error) {
@@ -422,6 +426,7 @@ func decodeCoInst(op Op, bits uint32) (Inst, error) {
 				switch o {
 				case invalid:
 					return Inst{}, errors.Errorf("support for COP0 bit pattern %05b not yet implemented", cop0)
+				// System Control Coprocessor (CP0) Instructions
 				case TLBR, TLBWI, TLBWR, TLBP, RFE:
 					// Syntax.
 					//
@@ -435,23 +440,33 @@ func decodeCoInst(op Op, bits uint32) (Inst, error) {
 					panic(fmt.Errorf("support for COP0 opcode %v not yet implemented", o))
 				}
 			case COP1:
-				// TODO: implement.
-				panic("support for COP1 specific operations not yet implemented")
+				// TODO: implement COP1 specific instructions.
+				// TODO: re-enable panic.
+				log.Print("support for COP1 specific operations not yet implemented")
+				return Inst{}, nil
+				//panic("support for COP1 specific operations not yet implemented")
 			case COP2:
 				const cofuncMask = 0x01FFFFFF // 0b00000001111111111111111111111111
 				cofunc := Imm{Imm: bits & cofuncMask}
 				args[0] = cofunc
 				return Inst{Op: op, Enc: bits, Args: args}, nil
 			case COP3:
-				// TODO: implement.
-				panic("support for COP3 specific operations not yet implemented")
+				// TODO: implement COP3 specific instructions.
+				// TODO: re-enable panic.
+				log.Print("support for COP3 specific operations not yet implemented")
+				return Inst{}, nil
+				//panic("support for COP3 specific operations not yet implemented")
 			}
 		}
 		z := counit(op)
 		o := opFromCoSubop[subop]
 		switch o {
 		case invalid:
-			panic(fmt.Sprintf("support for co-processor suboperation bit pattern %06b not yet implemented", subop))
+			// TODO: re-enable panic.
+			log.Printf("support for co-processor suboperation bit pattern %06b not yet implemented", subop)
+			return Inst{}, nil
+			//panic(fmt.Sprintf("support for co-processor suboperation bit pattern %06b not yet implemented", subop))
+		// System Control Coprocessor (CP0) Instructions
 		case MTC0, MFC0, CTC0, CFC0:
 			t := Reg(bits & tRegMask >> 16)
 			d := Reg(bits & dRegMask >> 11)
@@ -464,7 +479,8 @@ func decodeCoInst(op Op, bits uint32) (Inst, error) {
 			args[0] = t
 			args[1] = coreg(d, z)
 			return Inst{Op: coop(o, z), Enc: bits, Args: args}, nil
-		case BCC0:
+		// Coprocessor Instructions
+		case bc:
 			const bccondMask = 0x03E00000 // 0b00000011111000000000000000000000
 			bccond := bits & bccondMask >> 21
 			o := opFromBCCond[bccond]
@@ -511,7 +527,7 @@ func coreg(r Reg, z int) Reg {
 // coop returns the operation op of co-processor unit z.
 func coop(op Op, z int) Op {
 	switch op {
-	case MFC0, MTC0, CFC0, CTC0, BCC0, BC0F, BC0T:
+	case MFC0, MTC0, CFC0, CTC0, BC0F, BC0T:
 		return op + Op(z)
 	case TLBR, TLBWI, TLBWR, TLBP, RFE:
 		return op // always on CO0
@@ -705,7 +721,7 @@ var opFromCoSubop = [...]Op{
 	0x05: invalid, // 0b00101
 	0x06: CTC0,    // 0b00110; actual co-processor ID determined by COPz
 	0x07: invalid, // 0b00111
-	0x08: BCC0,    // 0b01000; actual co-processor ID determined by COPz
+	0x08: bc,      // 0b01000; actual co-processor ID determined by COPz
 	0x09: invalid, // 0b01001
 	0x0A: invalid, // 0b01010
 	0x0B: invalid, // 0b01011
@@ -804,12 +820,3 @@ var opFromCop0 = [...]Op{
 	0x1E: invalid, // 0b11110
 	0x1F: invalid, // 0b11111
 }
-
-// The destination address of jump instructions is (pc&0xF0000000 + target);
-// where pc is the address of the jump instruction -- from which the 4 most
-// significant bits are used -- and target is the immediate shifted two bits to
-// the left.
-
-// The destination address of a branch instruction is pc + target; where pc is
-// the address of the delay slot instruction and target is the immediate shifted
-// two bits to the left.

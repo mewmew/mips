@@ -4,9 +4,9 @@ package mips
 
 import "strconv"
 
-const _Op_name = "invalidregister encoded instruction (function)condition branch instruction (condition)addaddiaddiuadduandandibeqbgtzblezbnedivdivujjaljalrjrlblbulhlhulwmfhimflomthimtlomultmultunorororisbshsllsllvsltsltisltiusltusrasravsrlsrlvsubsubuswxorxoribgezbgezalbltzalbltzluicop0cop1cop2cop3lwllwrswlswrlwc0lwc1lwc2lwc3swc0swc1swc2swc3syscallbreakmfc0mfc1mfc2mfc3mtc0mtc1mtc2mtc3cfc0cfc1cfc2cfc3ctc0ctc1ctc2ctc3bcc0bcc1bcc2bcc3bc0fbc1fbc2fbc3fbc0tbc1tbc2tbc3ttlbrtlbwitlbwrtlbprfe"
+const _Op_name = "invalidregister encoded instruction (function)condition branch instruction (condition)branch on co-processor (bccond)lblbulhlhulwlwllwrsbshswswlswraddiaddiusltisltiuandiorixoriluiaddaddusubsubusltsltuandorxornorsllsrlsrasllvsrlvsravmultmultudivdivumfhimthimflomtlojjaljrjalrbeqbneblezbgtzbltzbgezbltzalbgezalsyscallbreaktlbrtlbwitlbwrtlbprfelwc0lwc1lwc2lwc3swc0swc1swc2swc3mtc0mtc1mtc2mtc3mfc0mfc1mfc2mfc3ctc0ctc1ctc2ctc3cfc0cfc1cfc2cfc3cop0cop1cop2cop3bc0tbc1tbc2tbc3tbc0fbc1fbc2fbc3f"
 
-var _Op_index = [...]uint16{0, 7, 46, 86, 89, 93, 98, 102, 105, 109, 112, 116, 120, 123, 126, 130, 131, 134, 138, 140, 142, 145, 147, 150, 152, 156, 160, 164, 168, 172, 177, 180, 182, 185, 187, 189, 192, 196, 199, 203, 208, 212, 215, 219, 222, 226, 229, 233, 235, 238, 242, 246, 252, 258, 262, 265, 269, 273, 277, 281, 284, 287, 290, 293, 297, 301, 305, 309, 313, 317, 321, 325, 332, 337, 341, 345, 349, 353, 357, 361, 365, 369, 373, 377, 381, 385, 389, 393, 397, 401, 405, 409, 413, 417, 421, 425, 429, 433, 437, 441, 445, 449, 453, 458, 463, 467, 470}
+var _Op_index = [...]uint16{0, 7, 46, 86, 117, 119, 122, 124, 127, 129, 132, 135, 137, 139, 141, 144, 147, 151, 156, 160, 165, 169, 172, 176, 179, 182, 186, 189, 193, 196, 200, 203, 205, 208, 211, 214, 217, 220, 224, 228, 232, 236, 241, 244, 248, 252, 256, 260, 264, 265, 268, 270, 274, 277, 280, 284, 288, 292, 296, 302, 308, 315, 320, 324, 329, 334, 338, 341, 345, 349, 353, 357, 361, 365, 369, 373, 377, 381, 385, 389, 393, 397, 401, 405, 409, 413, 417, 421, 425, 429, 433, 437, 441, 445, 449, 453, 457, 461, 465, 469, 473, 477, 481, 485}
 
 func (i Op) String() string {
 	if i >= Op(len(_Op_index)-1) {

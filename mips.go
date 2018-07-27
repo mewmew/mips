@@ -50,121 +50,126 @@ type Op uint8
 const (
 	invalid Op = iota
 	special    // register encoded instruction (function)
-	// TODO: consider renaming bcond to regimm.
-	bcond // condition branch instruction (condition)
+	bcond      // condition branch instruction (condition)
+	bc         // branch on co-processor (bccond)
 
-	ADD   // add
+	// Load/Store Instructions
+	LB  // lb
+	LBU // lbu
+	LH  // lh
+	LHU // lhu
+	LW  // lw
+	LWL // lwl
+	LWR // lwr
+	SB  // sb
+	SH  // sh
+	SW  // sw
+	SWL // swl
+	SWR // swr
+
+	// Arithmetic Instructions (ALU Immediate)
 	ADDI  // addi
 	ADDIU // addiu
-	ADDU  // addu
-	AND   // and
-	ANDI  // andi
-	BEQ   // beq
-	BGTZ  // bgtz
-	BLEZ  // blez
-	BNE   // bne
-	DIV   // div
-	DIVU  // divu
-	J     // j
-	JAL   // jal
-	JALR  // jalr
-	JR    // jr
-	LB    // lb
-	LBU   // lbu
-	LH    // lh
-	LHU   // lhu
-	LW    // lw
-	MFHI  // mfhi
-	MFLO  // mflo
-	MTHI  // mthi
-	MTLO  // mtlo
-	MULT  // mult
-	MULTU // multu
-	NOR   // nor
-	OR    // or
-	ORI   // ori
-	SB    // sb
-	SH    // sh
-	SLL   // sll
-	SLLV  // sllv
-	SLT   // slt
 	SLTI  // slti
 	SLTIU // sltiu
-	SLTU  // sltu
-	SRA   // sra
-	SRAV  // srav
-	SRL   // srl
-	SRLV  // srlv
-	SUB   // sub
-	SUBU  // subu
-	SW    // sw
-	XOR   // xor
+	ANDI  // andi
+	ORI   // ori
 	XORI  // xori
+	LUI   // lui
 
-	// TODO: Figure out a good placement. Also, remove unused instructions above.
-	// Furthermore, validate the instruction type and that decoding is done
-	// correctly; e.g. I-type, R-type, J-type.
-	BGEZ    // bgez
-	BGEZAL  // bgezal
-	BLTZAL  // bltzal
-	BLTZ    // bltz
-	LUI     // lui
-	COP0    // cop0
-	COP1    // cop1
-	COP2    // cop2
-	COP3    // cop3
-	LWL     // lwl
-	LWR     // lwr
-	SWL     // swl
-	SWR     // swr
-	LWC0    // lwc0
-	LWC1    // lwc1
-	LWC2    // lwc2
-	LWC3    // lwc3
-	SWC0    // swc0
-	SWC1    // swc1
-	SWC2    // swc2
-	SWC3    // swc3
+	// Arithmetic Instructions (3-operand, register-type)
+	ADD  // add
+	ADDU // addu
+	SUB  // sub
+	SUBU // subu
+	SLT  // slt
+	SLTU // sltu
+	AND  // and
+	OR   // or
+	XOR  // xor
+	NOR  // nor
+
+	// Shift Instructions
+	SLL  // sll
+	SRL  // srl
+	SRA  // sra
+	SLLV // sllv
+	SRLV // srlv
+	SRAV // srav
+
+	// Multiply/Divide Instructions
+	MULT  // mult
+	MULTU // multu
+	DIV   // div
+	DIVU  // divu
+	MFHI  // mfhi
+	MTHI  // mthi
+	MFLO  // mflo
+	MTLO  // mtlo
+
+	// Jump and Branch Instructions
+	J      // j
+	JAL    // jal
+	JR     // jr
+	JALR   // jalr
+	BEQ    // beq
+	BNE    // bne
+	BLEZ   // blez
+	BGTZ   // bgtz
+	BLTZ   // bltz
+	BGEZ   // bgez
+	BLTZAL // bltzal
+	BGEZAL // bgezal
+
+	// Special Instructions
 	SYSCALL // syscall
 	BREAK   // break
 
-	// Co-Processor Operations
-	// order matters: each instruction has a CO0 through CO3 variant.
-	MFC0 // mfc0
-	MFC1 // mfc1
-	MFC2 // mfc2
-	MFC3 // mfc3
-	MTC0 // mtc0
-	MTC1 // mtc1
-	MTC2 // mtc2
-	MTC3 // mtc3
-	CFC0 // cfc0
-	CFC1 // cfc1
-	CFC2 // cfc2
-	CFC3 // cfc3
-	CTC0 // ctc0
-	CTC1 // ctc1
-	CTC2 // ctc2
-	CTC3 // ctc3
-	BCC0 // bcc0
-	BCC1 // bcc1
-	BCC2 // bcc2
-	BCC3 // bcc3
-	BC0F // bc0f
-	BC1F // bc1f
-	BC2F // bc2f
-	BC3F // bc3f
-	BC0T // bc0t
-	BC1T // bc1t
-	BC2T // bc2t
-	BC3T // bc3t
-
-	// CP0 Operations.
+	// System Control Coprocessor (CP0) Instructions
 	TLBR  // tlbr
 	TLBWI // tlbwi
 	TLBWR // tlbwr
 	TLBP  // tlbp
 	RFE   // rfe
+
+	// Coprocessor Instructions
+	// order matters: each instruction has a CO0 through CO3 variant.
+	LWC0 // lwc0
+	LWC1 // lwc1
+	LWC2 // lwc2
+	LWC3 // lwc3
+	SWC0 // swc0
+	SWC1 // swc1
+	SWC2 // swc2
+	SWC3 // swc3
+	MTC0 // mtc0
+	MTC1 // mtc1
+	MTC2 // mtc2
+	MTC3 // mtc3
+	MFC0 // mfc0
+	MFC1 // mfc1
+	MFC2 // mfc2
+	MFC3 // mfc3
+	CTC0 // ctc0
+	CTC1 // ctc1
+	CTC2 // ctc2
+	CTC3 // ctc3
+	CFC0 // cfc0
+	CFC1 // cfc1
+	CFC2 // cfc2
+	CFC3 // cfc3
+	COP0 // cop0
+	COP1 // cop1
+	COP2 // cop2
+	COP3 // cop3
+	BC0T // bc0t
+	BC1T // bc1t
+	BC2T // bc2t
+	BC3T // bc3t
+	BC0F // bc0f
+	BC1F // bc1f
+	BC2F // bc2f
+	BC3F // bc3f
 )
 
 // An Args holds the instruction arguments. If an instruction has fewer than 3
@@ -233,7 +238,7 @@ const (
 	// registers.
 
 	// CP0 (System control co-processor) special registers.
-	// TODO: Find names for remaining CO0 registers.
+	// TODO: Add names for remaining CO0 registers.
 	CP0Reg0
 	CP0Reg1
 	BusCtrl // BusCtrl
@@ -336,7 +341,7 @@ const (
 	CO2Reg31 // $31
 
 	// CO3 Registers.
-	// TODO: Add CO3 registers.
+	// TODO: Add names for CO3 registers.
 	CP3Reg0  // $cp3_0
 	CP3Reg1  // $cp3_1
 	CP3Reg2  // $cp3_2
