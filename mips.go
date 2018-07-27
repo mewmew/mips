@@ -30,12 +30,6 @@ func (i Inst) String() string {
 		args = append(args, arg.String())
 	}
 	if len(args) > 0 {
-		// TODO: remove IDA format.
-		if len(args) >= 2 {
-			if args[0] == args[1] {
-				args = args[1:] // skip first argument if src and dest are identical.
-			}
-		}
 		return fmt.Sprintf("%-*s%s", 8, i.Op, strings.Join(args, ", "))
 	}
 	return i.Op.String()
