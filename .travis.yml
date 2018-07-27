@@ -1,0 +1,38 @@
+language: go
+
+notifications:
+  email: false
+
+env:
+  global:
+    - PATH=$HOME/gopath/bin:$PATH
+    # CodeClimate
+    - CC_TEST_REPORTER_ID=5853b0a441d8420036de86ebfb9072266bb5712eef89aa1885423125649803e2
+
+before_install:
+  - go get -u golang.org/x/tools/cmd/cover
+  - go get -u golang.org/x/tools/cmd/goimports
+  - go get -u github.com/golang/lint/golint
+  - go get -u github.com/mattn/goveralls
+  - go get -u github.com/golangci/golangci-lint/cmd/golangci-lint
+
+install:
+  - go get -t -v ./...
+
+before_script:
+  - wget https://gist.github.com/mewmew/379014c9a2e6885e238d/raw/goclean.sh
+  - chmod +x goclean.sh
+  # CodeClimate
+  - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
+  - chmod +x ./cc-test-reporter
+  - ./cc-test-reporter before-build
+
+script:
+  - ./goclean.sh
+  - golangci-lint run --enable-all
+  # CodeClimate
+  - go test -coverprofile c.out ./...
+
+after_script:
+  # CodeClimate
+  - ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT
