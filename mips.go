@@ -393,7 +393,7 @@ type Mem struct {
 // String returns the string representation of the memory reference.
 func (m Mem) String() string {
 	// TODO: Figure out what format to use for memory offsets.
-	if m.Offset < 10 {
+	if m.Offset < 0x10 {
 		return fmt.Sprintf("%d(%s)", m.Offset, m.Base)
 	}
 	return fmt.Sprintf("0x%X(%s)", m.Offset, m.Base)
