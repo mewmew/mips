@@ -17,6 +17,7 @@ func TestDecode(t *testing.T) {
 		{in: 0x8085FFFE, want: "lb      $a1, -2($a0)"},
 		{in: 0x90AA000F, want: "lbu     $t2, 15($a1)"},
 		{in: 0x90AA0010, want: "lbu     $t2, 0x10($a1)"},
+		// TODO: Add further test cases.
 		/*
 			{in: 0x00000000, want: "LH      $t, offset($s)"},
 			{in: 0x00000000, want: "LHU     $t, offset($s)"},
