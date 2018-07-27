@@ -383,8 +383,8 @@ func (r PCRel) String() string {
 
 // --- [ Memory reference ] ----------------------------------------------------
 
-// A Mem is a memory reference made up of a base R and immediate X. The
-// effective memory address is R+X.
+// A Mem is a memory reference made up of a base R and immediate offset. The
+// effective memory address is R+offset.
 type Mem struct {
 	Base   Reg
 	Offset int32
