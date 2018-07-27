@@ -8,4 +8,4 @@ Decoder library for 32-bit MIPS I machine code in Go.
 
 ## Design
 
-For familiarity and consistency, the API is intentionally kept as close as possible to the [golang.org/x/arch](https://golang.org/x/arch) packages.
+The API is intentionally kept as close as possible to the [golang.org/x/arch](https://golang.org/x/arch) packages.
