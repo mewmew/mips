@@ -6,6 +6,8 @@ notifications:
 env:
   global:
     - PATH=$HOME/gopath/bin:$PATH
+    # Coveralls
+    - secure: "DY78bHhFSJOsCiCplwzfItTWgzTvT82P6u87NiJ6ZFfojofSd8WF9x+rJSXKusHBwiOO/CONOXNPjfKy1yuaWlitWHL6Bn+IaOf5NLjRP70VnSZv1aoFz8DIR7Yn3WdEXyqveYdaZmgU7w72lnSlfNBVrzW4np0js1fC+eR7unbzlh/+qlQJFOd7Chf/3OVa/oB2/dL9Y4rFvjvL0+VcVB2r6YpaQ1kcdYUU5i8kM+kOi3mpYFl+Afuf3UvGmamsCjKeh4IE/2yILFV6a88wABIT1xDZ9s40wtpWhy83yBntAZduBg4tGV3/NKPbeg/uouvMAeOPWYP/zNuTjwgorKpQaPVWpoXy7yuJrkmf177F4VmoO0uQaM3OakEF5NedcdwZKlAURpbgz/KDBNiUglAhqH4CSu3j5E9F1St1HbkINYRw8Pt9lpOqX6Cs+nzP1W73eO4SvxkC3xuur5C4inrWoD/4IalxoBHfdvQbrVc31CXIqgKIyzQbQTk+4ToSv6+1j/j+rb5zLpTKHhAC+JVxDCDwcrODyb8VSZsV5tPV8pNN9KSaZ7K58Gy9uP2hOsboARxhWPVApQ8ILAAAm/sQuupiOyv2CLHiM8lN5+QSvB56S6H4KHRhhYlSYrmD8EWmjTmHl3tvz9EX2hRZEQiYECui/6i6+gYCm8qJVKw="
     # CodeClimate
     - CC_TEST_REPORTER_ID=5853b0a441d8420036de86ebfb9072266bb5712eef89aa1885423125649803e2
 
@@ -29,7 +31,7 @@ before_script:
 
 script:
   - ./goclean.sh
-  - golangci-lint run --enable-all
+  - golangci-lint run --enable-all -D dupl,prealloc
   # CodeClimate
   - go test -coverprofile c.out ./...
 

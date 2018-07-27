@@ -411,9 +411,9 @@ type Imm struct {
 func (i Imm) String() string {
 	// TODO: Change back from IDA format.
 	if i.Decimal {
-		return fmt.Sprintf("%d", uint32(i.Imm))
+		return fmt.Sprintf("%d", i.Imm)
 	}
-	return fmt.Sprintf("0x%X", uint32(i.Imm))
+	return fmt.Sprintf("0x%X", i.Imm)
 }
 
 // isArg ensures that only arguments can be assigned to the Arg interface.
