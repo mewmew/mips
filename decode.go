@@ -520,7 +520,7 @@ func counit(op Op) int {
 func coreg(r Reg, z int) Reg {
 	// Number of registers in co-processor.
 	const ncoregs = 32
-	first := CP0Reg0 + Reg(z*ncoregs)
+	first := CO0Reg0 + Reg(z*ncoregs)
 	return first + r
 }
 
