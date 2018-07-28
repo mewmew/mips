@@ -119,8 +119,8 @@ import (
 //    +---------+----------------------------------------------------+----------+---------------------------+
 //    |         | System Control Coprocessor (CP0) Instructions                                             |
 //    +---------+----------------------------------------------------+----------+---------------------------+
-//    | MTC0    | Move To CP0                                        | x-type   | MTC0 $t, $d               |
-//    | MFC0    | Move From CP0                                      | x-type   | MFC0 $t, $d               |
+//    | MTC0    | Move To CP0                                        | x-type   | MTC0     $t, $d           |
+//    | MFC0    | Move From CP0                                      | x-type   | MFC0     $t, $d           |
 //    | TLBR    | Read indexed TLB entry                             | x-type   | TLBR                      |
 //    | TLBWI   | Write indexed TLB entry                            | x-type   | TLBWI                     |
 //    | TLBWR   | Write Random TLB entry                             | x-type   | TLBWR                     |
@@ -288,7 +288,7 @@ func decodeImmInst(op Op, bits uint32) (Inst, error) {
 	var args Args
 	s := Reg(bits & sRegMask >> 21)
 	t := Reg(bits & tRegMask >> 16)
-	i := Imm{Imm: bits & imm16Mask}
+	i := Imm{Imm: uint32(int16(bits & imm16Mask))}
 	switch op {
 	// Load/Store Instructions
 	case LB, LBU, LH, LHU, LW, LWL, LWR, SB, SH, SW, SWL, SWR:
@@ -309,7 +309,7 @@ func decodeImmInst(op Op, bits uint32) (Inst, error) {
 		args[0] = t
 		m := Mem{
 			Base:   s,
-			Offset: int32(int16(i.Imm)),
+			Offset: int32(i.Imm),
 		}
 		args[1] = m
 

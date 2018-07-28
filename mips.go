@@ -231,16 +231,16 @@ const (
 	// order matters; CO0 registers are directly followed by CO1, CO2 and CO3
 	// registers.
 
-	// CP0 (System control co-processor) special registers.
+	// CO0 (System control co-processor) special registers.
 	// TODO: Add names for remaining CO0 registers.
-	CP0Reg0
-	CP0Reg1
+	CO0Reg0
+	CO0Reg1
 	BusCtrl // BusCtrl
 	Config  // Config
-	CP0Reg4
-	CP0Reg5
-	CP0Reg6
-	CP0Reg7
+	CO0Reg4
+	CO0Reg5
+	CO0Reg6
+	CO0Reg7
 	BadVaddr // BadVaddr
 	Count    // Count
 	PortSize // PortSize
@@ -249,22 +249,22 @@ const (
 	Cause    // Cause
 	EPC      // EPC
 	PRId     // PRId
-	CP0Reg16
-	CP0Reg17
-	CP0Reg18
-	CP0Reg19
-	CP0Reg20
-	CP0Reg21
-	CP0Reg22
-	CP0Reg23
-	CP0Reg24
-	CP0Reg25
-	CP0Reg26
-	CP0Reg27
-	CP0Reg28
-	CP0Reg29
-	CP0Reg30
-	CP0Reg31
+	CO0Reg16
+	CO0Reg17
+	CO0Reg18
+	CO0Reg19
+	CO0Reg20
+	CO0Reg21
+	CO0Reg22
+	CO0Reg23
+	CO0Reg24
+	CO0Reg25
+	CO0Reg26
+	CO0Reg27
+	CO0Reg28
+	CO0Reg29
+	CO0Reg30
+	CO0Reg31
 
 	// CP1 (FPU) registers.
 	F0  // $f0
@@ -336,38 +336,38 @@ const (
 
 	// CO3 Registers.
 	// TODO: Add names for CO3 registers.
-	CP3Reg0  // $cp3_0
-	CP3Reg1  // $cp3_1
-	CP3Reg2  // $cp3_2
-	CP3Reg3  // $cp3_3
-	CP3Reg4  // $cp3_4
-	CP3Reg5  // $cp3_5
-	CP3Reg6  // $cp3_6
-	CP3Reg7  // $cp3_7
-	CP3Reg8  // $cp3_8
-	CP3Reg9  // $cp3_9
-	CP3Reg10 // $cp3_10
-	CP3Reg11 // $cp3_11
-	CP3Reg12 // $cp3_12
-	CP3Reg13 // $cp3_13
-	CP3Reg14 // $cp3_14
-	CP3Reg15 // $cp3_15
-	CP3Reg16 // $cp3_16
-	CP3Reg17 // $cp3_17
-	CP3Reg18 // $cp3_18
-	CP3Reg19 // $cp3_19
-	CP3Reg20 // $cp3_20
-	CP3Reg21 // $cp3_21
-	CP3Reg22 // $cp3_22
-	CP3Reg23 // $cp3_23
-	CP3Reg24 // $cp3_24
-	CP3Reg25 // $cp3_25
-	CP3Reg26 // $cp3_26
-	CP3Reg27 // $cp3_27
-	CP3Reg28 // $cp3_28
-	CP3Reg29 // $cp3_29
-	CP3Reg30 // $cp3_30
-	CP3Reg31 // $cp3_31
+	CO3Reg0  // $co3_0
+	CO3Reg1  // $co3_1
+	CO3Reg2  // $co3_2
+	CO3Reg3  // $co3_3
+	CO3Reg4  // $co3_4
+	CO3Reg5  // $co3_5
+	CO3Reg6  // $co3_6
+	CO3Reg7  // $co3_7
+	CO3Reg8  // $co3_8
+	CO3Reg9  // $co3_9
+	CO3Reg10 // $co3_10
+	CO3Reg11 // $co3_11
+	CO3Reg12 // $co3_12
+	CO3Reg13 // $co3_13
+	CO3Reg14 // $co3_14
+	CO3Reg15 // $co3_15
+	CO3Reg16 // $co3_16
+	CO3Reg17 // $co3_17
+	CO3Reg18 // $co3_18
+	CO3Reg19 // $co3_19
+	CO3Reg20 // $co3_20
+	CO3Reg21 // $co3_21
+	CO3Reg22 // $co3_22
+	CO3Reg23 // $co3_23
+	CO3Reg24 // $co3_24
+	CO3Reg25 // $co3_25
+	CO3Reg26 // $co3_26
+	CO3Reg27 // $co3_27
+	CO3Reg28 // $co3_28
+	CO3Reg29 // $co3_29
+	CO3Reg30 // $co3_30
+	CO3Reg31 // $co3_31
 )
 
 // --- [ PC relative memory address ] ------------------------------------------
