@@ -3,7 +3,6 @@ package mips
 import (
 	"encoding/binary"
 	"fmt"
-	"log"
 
 	"github.com/pkg/errors"
 )
@@ -272,7 +271,7 @@ func decodeRegInst(bits uint32) (Inst, error) {
 		args[0] = code
 
 	default:
-		panic(fmt.Errorf("support for opcode %v not yet implemented", op))
+		return Inst{}, errors.Errorf("support for opcode %v not yet implemented", op)
 	}
 	return Inst{Op: op, Enc: bits, Args: args}, nil
 }
@@ -369,10 +368,7 @@ func decodeImmInst(op Op, bits uint32) (Inst, error) {
 		}
 		args[1] = m
 	default:
-		// TODO: re-enable panic.
-		log.Printf("support for opcode %v not yet implemented", op)
-		return Inst{}, nil
-		//panic(fmt.Errorf("support for opcode %v not yet implemented", op))
+		return Inst{}, errors.Errorf("support for opcode %v not yet implemented", op)
 	}
 	return Inst{Op: op, Enc: bits, Args: args}, nil
 }
@@ -398,7 +394,7 @@ func decodeJumpInst(op Op, bits uint32) (Inst, error) {
 		i.Imm <<= 2
 		args[0] = i
 	default:
-		panic(fmt.Errorf("support for opcode %v not yet implemented", op))
+		return Inst{}, errors.Errorf("support for opcode %v not yet implemented", op)
 	}
 	return Inst{Op: op, Enc: bits, Args: args}, nil
 }
@@ -437,14 +433,11 @@ func decodeCoInst(op Op, bits uint32) (Inst, error) {
 					//    RFE
 					return Inst{Op: o, Enc: bits, Args: args}, nil
 				default:
-					panic(fmt.Errorf("support for COP0 opcode %v not yet implemented", o))
+					return Inst{}, errors.Errorf("support for COP0 opcode %v not yet implemented", o)
 				}
 			case COP1:
 				// TODO: implement COP1 specific instructions.
-				// TODO: re-enable panic.
-				log.Print("support for COP1 specific operations not yet implemented")
-				return Inst{}, nil
-				//panic("support for COP1 specific operations not yet implemented")
+				return Inst{}, errors.New("support for COP1 specific operations not yet implemented")
 			case COP2:
 				const cofuncMask = 0x01FFFFFF // 0b00000001111111111111111111111111
 				cofunc := Imm{Imm: bits & cofuncMask}
@@ -452,20 +445,14 @@ func decodeCoInst(op Op, bits uint32) (Inst, error) {
 				return Inst{Op: op, Enc: bits, Args: args}, nil
 			case COP3:
 				// TODO: implement COP3 specific instructions.
-				// TODO: re-enable panic.
-				log.Print("support for COP3 specific operations not yet implemented")
-				return Inst{}, nil
-				//panic("support for COP3 specific operations not yet implemented")
+				return Inst{}, errors.New("support for COP3 specific operations not yet implemented")
 			}
 		}
 		z := counit(op)
 		o := opFromCoSubop[subop]
 		switch o {
 		case invalid:
-			// TODO: re-enable panic.
-			log.Printf("support for co-processor suboperation bit pattern %06b not yet implemented", subop)
-			return Inst{}, nil
-			//panic(fmt.Sprintf("support for co-processor suboperation bit pattern %06b not yet implemented", subop))
+			return Inst{}, errors.Errorf("support for co-processor suboperation bit pattern %06b not yet implemented", subop)
 		// System Control Coprocessor (CP0) Instructions
 		case MTC0, MFC0, CTC0, CFC0:
 			t := Reg(bits & tRegMask >> 16)
@@ -488,13 +475,10 @@ func decodeCoInst(op Op, bits uint32) (Inst, error) {
 			args[0] = i
 			return Inst{Op: coop(o, z), Enc: bits, Args: args}, nil
 		default:
-			panic(fmt.Errorf("support for opcode %v not yet implemented", o))
+			return Inst{}, errors.Errorf("support for opcode %v not yet implemented", o)
 		}
 	default:
-		// TODO: re-enable panic.
-		log.Printf("support for opcode %v not yet implemented", op)
-		return Inst{}, nil
-		//panic(fmt.Errorf("support for opcode %v not yet implemented", op))
+		return Inst{}, errors.Errorf("support for opcode %v not yet implemented", op)
 	}
 }
 
